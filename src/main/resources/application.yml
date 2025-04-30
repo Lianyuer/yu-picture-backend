@@ -16,7 +16,7 @@ spring:
 mybatis-plus:
   configuration:
     # MyBatis 配置
-    map-underscore-to-camel-case: false
+    map-underscore-to-camel-case: true # 将下划线命名的数据库字段名转换为驼峰命名的Java实体类属性名
     # 仅在开发环境启用打印日志
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
