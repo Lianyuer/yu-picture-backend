@@ -2,7 +2,9 @@ package com.yu.yupicturebackend.controller;
 
 import com.yu.yupicturebackend.common.BaseResponse;
 import com.yu.yupicturebackend.common.ResultUtils;
+import com.yu.yupicturebackend.model.dto.UserLoginDTO;
 import com.yu.yupicturebackend.model.dto.UserRegisterDTO;
+import com.yu.yupicturebackend.model.vo.LoginUserVO;
 import com.yu.yupicturebackend.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 @Data
 @Slf4j
@@ -36,5 +39,19 @@ public class UserController {
     public BaseResponse<Long> register(@RequestBody UserRegisterDTO userRegisterRequest) {
         Long userId = userService.register(userRegisterRequest);
         return ResultUtils.success(userId);
+    }
+
+    /**
+     * 用户登录
+     *
+     * @param userLoginRequest 登录请求参数
+     * @param request          包含 http 请求信息的对象
+     * @return 返回脱敏后的登录用户信息
+     */
+    @PostMapping("/login")
+    @ApiOperation("用户登录接口")
+    public BaseResponse<LoginUserVO> login(@RequestBody UserLoginDTO userLoginRequest, HttpServletRequest request) {
+        LoginUserVO loginUserVO = userService.login(userLoginRequest, request);
+        return ResultUtils.success(loginUserVO);
     }
 }

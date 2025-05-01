@@ -3,15 +3,20 @@ package com.yu.yupicturebackend.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
+import com.yu.yupicturebackend.model.dto.UserLoginDTO;
 import com.yu.yupicturebackend.model.dto.UserRegisterDTO;
 import com.yu.yupicturebackend.model.entity.User;
+import com.yu.yupicturebackend.model.vo.LoginUserVO;
 import com.yu.yupicturebackend.service.UserService;
 import com.yu.yupicturebackend.mapper.UserMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Pattern;
 
 /**
@@ -22,6 +27,32 @@ import java.util.regex.Pattern;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         implements UserService {
+
+    /**
+     * 获取加密后的密码
+     *
+     * @param password 原密码
+     * @return 返回加密后的密码
+     */
+    @Override
+    public String getEncryptPassword(String password) {
+        // 加盐，混淆密码
+        String SALT = "yu_picture_salt_by_lian_yu";
+        return DigestUtils.md5DigestAsHex((SALT + password).getBytes());
+    }
+
+    /**
+     * 获取脱敏后的登录用户信息
+     *
+     * @param user 原登录用户信息
+     * @return 返回脱敏后的登录用户信息
+     */
+    @Override
+    public LoginUserVO getLoginUserVO(User user) {
+        LoginUserVO loginUserVO = new LoginUserVO();
+        BeanUtils.copyProperties(user, loginUserVO);
+        return loginUserVO;
+    }
 
     /**
      * 注册
@@ -39,7 +70,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 2、账号密码长度和特殊字符校验
         ThrowUtils.throwIf(userAccount.length() < 4, ErrorCode.PARAMS_ERROR, "账号不能少于4位");
         ThrowUtils.throwIf(userPassword.length() < 6, ErrorCode.PARAMS_ERROR, "密码不能少于6位");
-        ThrowUtils.throwIf(Pattern.compile("^[a-zA-Z0-9]+$\n").matcher(userAccount).matches(), ErrorCode.PARAMS_ERROR, "账号不能出现特殊字符");
+        ThrowUtils.throwIf(!Pattern.compile("^[a-zA-Z0-9]+$").matcher(userAccount).matches(), ErrorCode.PARAMS_ERROR, "账号不能出现特殊字符");
         // 2、两次输入的密码是否一致校验
         ThrowUtils.throwIf(!userPassword.equals(checkPassword), ErrorCode.PARAMS_ERROR, "两次密码输入不一致");
         // 3、判断账号是否已经被注册
@@ -48,8 +79,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User esixtUser = this.getOne(queryWrapper);
         ThrowUtils.throwIf(esixtUser != null, ErrorCode.PARAMS_ERROR, "账号已存在");
         // 4、密码加密
-        String SALT = "yu_picture_salt_by_lian_yu";
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        String encryptPassword = this.getEncryptPassword(userPassword);
         User user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(encryptPassword);
@@ -57,6 +87,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         ThrowUtils.throwIf(!isSaved, ErrorCode.SYSTEM_ERROR);
         return user.getId();
     }
+
+    /**
+     * 登录
+     *
+     * @param userLoginRequest 登录请求参数
+     * @param request          包含 http 请求信息的对象
+     * @return 脱敏后的登录用户信息
+     */
+    @Override
+    public LoginUserVO login(UserLoginDTO userLoginRequest, HttpServletRequest request) {
+        String userAccount = userLoginRequest.getUserAccount();
+        String userPassword = userLoginRequest.getUserPassword();
+        // 1、参数校验
+        ThrowUtils.throwIf(StrUtil.hasBlank(userAccount, userPassword), ErrorCode.PARAMS_ERROR, "账号或密码错误");
+        // 2、密码加密
+        String encryptPassword = this.getEncryptPassword(userPassword);
+        // 3、查询数据库中的用户是否存在，不存在则抛异常
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("user_account", userAccount);
+        userQueryWrapper.eq("user_password", encryptPassword);
+        User user = this.getOne(userQueryWrapper);
+        ThrowUtils.throwIf(user == null, ErrorCode.PARAMS_ERROR, "账号或密码错误");
+        // 4、数据脱敏
+        LoginUserVO loginUserVO = getLoginUserVO(user);
+        // 5、保存用户登录态
+        request.getSession().setAttribute(UserConstant.LOGIN_USER_STATE, loginUserVO);
+        return loginUserVO;
+    }
+
 }
 
 
