@@ -12,6 +12,7 @@ import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.LoginUserVO;
 import com.yu.yupicturebackend.service.UserService;
 import com.yu.yupicturebackend.mapper.UserMapper;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -133,6 +134,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = this.getById(currentUser.getId());
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_LOGIN_ERROR);
         return user;
+    }
+
+    /**
+     * 用户注销
+     *
+     * @param request 包含 http 请求信息的对象
+     * @return 返回成功与否的结果
+     */
+    @Override
+    public boolean userLogout(HttpServletRequest request) {
+        LoginUserVO loginUser = (LoginUserVO) request.getSession().getAttribute(UserConstant.LOGIN_USER_STATE);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.OPERATION_ERROR, "未登录");
+        request.getSession().removeAttribute(UserConstant.LOGIN_USER_STATE);
+        return true;
     }
 
 }
