@@ -4,16 +4,14 @@ import com.yu.yupicturebackend.common.BaseResponse;
 import com.yu.yupicturebackend.common.ResultUtils;
 import com.yu.yupicturebackend.model.dto.UserLoginDTO;
 import com.yu.yupicturebackend.model.dto.UserRegisterDTO;
+import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.LoginUserVO;
 import com.yu.yupicturebackend.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -53,5 +51,18 @@ public class UserController {
     public BaseResponse<LoginUserVO> login(@RequestBody UserLoginDTO userLoginRequest, HttpServletRequest request) {
         LoginUserVO loginUserVO = userService.login(userLoginRequest, request);
         return ResultUtils.success(loginUserVO);
+    }
+
+    /**
+     * 获取当前登录用户信息
+     *
+     * @param request 包含 http 请求信息的对象
+     * @return 返回当前登录用户信息
+     */
+    @GetMapping("/get/login")
+    @ApiOperation("获取当前登录用户信息接口")
+    public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(userService.getLoginUserVO(loginUser));
     }
 }
