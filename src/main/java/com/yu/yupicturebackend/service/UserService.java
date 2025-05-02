@@ -3,6 +3,7 @@ package com.yu.yupicturebackend.service;
 import com.yu.yupicturebackend.model.dto.user.UserAddDTO;
 import com.yu.yupicturebackend.model.dto.user.UserLoginDTO;
 import com.yu.yupicturebackend.model.dto.user.UserRegisterDTO;
+import com.yu.yupicturebackend.model.dto.user.UserUpdateDTO;
 import com.yu.yupicturebackend.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yu.yupicturebackend.model.vo.LoginUserVO;
@@ -90,4 +91,12 @@ public interface UserService extends IService<User> {
      * @return 返回创建用户的 id
      */
     Long addUser(UserAddDTO userAddDTO);
+
+    /**
+     * 更新用户
+     *
+     * @param userUpdateDTO 更新用户请求参数
+     * @return 返回结果 true or false
+     */
+    Boolean updateUser(UserUpdateDTO userUpdateDTO);
 }

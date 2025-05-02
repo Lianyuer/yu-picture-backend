@@ -9,6 +9,7 @@ import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.model.dto.user.UserAddDTO;
 import com.yu.yupicturebackend.model.dto.user.UserLoginDTO;
 import com.yu.yupicturebackend.model.dto.user.UserRegisterDTO;
+import com.yu.yupicturebackend.model.dto.user.UserUpdateDTO;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.LoginUserVO;
 import com.yu.yupicturebackend.service.UserService;
@@ -97,6 +98,20 @@ public class UserController {
     public BaseResponse<Long> addUser(@RequestBody UserAddDTO userAddDTO) {
         Long userId = userService.addUser(userAddDTO);
         return ResultUtils.success(userId);
+    }
+
+    /**
+     * 更新用户
+     *
+     * @param userUpdateDTO 更新用户请求参数
+     * @return 返回结果 true or false
+     */
+    @PostMapping("/update")
+    @ApiOperation("更新用户接口")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateDTO userUpdateDTO) {
+        Boolean isUpdated = userService.updateUser(userUpdateDTO);
+        return ResultUtils.success(isUpdated);
     }
 
 }

@@ -7,10 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
-import com.yu.yupicturebackend.model.dto.user.UserAddDTO;
-import com.yu.yupicturebackend.model.dto.user.UserLoginDTO;
-import com.yu.yupicturebackend.model.dto.user.UserQueryDTO;
-import com.yu.yupicturebackend.model.dto.user.UserRegisterDTO;
+import com.yu.yupicturebackend.model.dto.user.*;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.LoginUserVO;
 import com.yu.yupicturebackend.model.vo.UserVO;
@@ -233,6 +230,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         boolean isSaved = this.save(user);
         ThrowUtils.throwIf(!isSaved, ErrorCode.OPERATION_ERROR);
         return user.getId();
+    }
+
+    /**
+     * 更新用户
+     *
+     * @param userUpdateDTO 更新用户请求参数
+     * @return 返回结果 true or false
+     */
+    @Override
+    public Boolean updateUser(UserUpdateDTO userUpdateDTO) {
+        ThrowUtils.throwIf(userUpdateDTO == null || StrUtil.hasEmpty(userUpdateDTO.getUserRole()), ErrorCode.PARAMS_ERROR);
+        User existUser = this.getOne(new QueryWrapper<User>().eq("id", userUpdateDTO.getId()));
+        ThrowUtils.throwIf(existUser == null, ErrorCode.NOT_FOUND_ERROR);
+        User user = new User();
+        BeanUtils.copyProperties(userUpdateDTO, user);
+        boolean isUpdated = this.updateById(user);
+        ThrowUtils.throwIf(!isUpdated, ErrorCode.OPERATION_ERROR);
+        return true;
     }
 
 }
