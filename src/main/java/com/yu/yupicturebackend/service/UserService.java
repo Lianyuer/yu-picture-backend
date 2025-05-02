@@ -1,5 +1,6 @@
 package com.yu.yupicturebackend.service;
 
+import com.yu.yupicturebackend.common.DeleteRequest;
 import com.yu.yupicturebackend.model.dto.user.UserAddDTO;
 import com.yu.yupicturebackend.model.dto.user.UserLoginDTO;
 import com.yu.yupicturebackend.model.dto.user.UserRegisterDTO;
@@ -99,4 +100,12 @@ public interface UserService extends IService<User> {
      * @return 返回结果 true or false
      */
     Boolean updateUser(UserUpdateDTO userUpdateDTO);
+
+    /**
+     * 删除用户
+     *
+     * @param deleteRequest 删除用户请求参数
+     * @return 返回删除结果 true or false
+     */
+    Boolean deleteUser(DeleteRequest deleteRequest);
 }

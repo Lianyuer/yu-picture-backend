@@ -1,5 +1,6 @@
 package com.yu.yupicturebackend.common;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,11 +11,9 @@ import java.io.Serializable;
 @Data
 public class DeleteRequest implements Serializable {
 
-    /**
-     * 当前页号
-     */
-    private Long id;
+    private static final long serialVersionUID = 156646757335236659L;
 
-    private static final long serialVersionUID = 1L;
+    @ApiModelProperty(value = "用户id", required = true)
+    private Long id;
 
 }

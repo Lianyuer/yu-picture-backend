@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yu.yupicturebackend.common.DeleteRequest;
 import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
@@ -247,6 +248,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         BeanUtils.copyProperties(userUpdateDTO, user);
         boolean isUpdated = this.updateById(user);
         ThrowUtils.throwIf(!isUpdated, ErrorCode.OPERATION_ERROR);
+        return true;
+    }
+
+    /**
+     * 删除用户
+     *
+     * @param deleteRequest 删除用户请求参数
+     * @return 返回删除结果 true or false
+     */
+    @Override
+    public Boolean deleteUser(DeleteRequest deleteRequest) {
+        ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
+        User existUser = this.getOne(new QueryWrapper<User>().eq("id", deleteRequest.getId()));
+        ThrowUtils.throwIf(existUser == null, ErrorCode.NOT_FOUND_ERROR);
+        boolean isRemoved = this.removeById(existUser.getId());
+        ThrowUtils.throwIf(!isRemoved, ErrorCode.OPERATION_ERROR);
         return true;
     }
 

@@ -2,6 +2,7 @@ package com.yu.yupicturebackend.controller;
 
 import com.yu.yupicturebackend.annotation.AuthCheck;
 import com.yu.yupicturebackend.common.BaseResponse;
+import com.yu.yupicturebackend.common.DeleteRequest;
 import com.yu.yupicturebackend.common.ResultUtils;
 import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.ErrorCode;
@@ -112,6 +113,20 @@ public class UserController {
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateDTO userUpdateDTO) {
         Boolean isUpdated = userService.updateUser(userUpdateDTO);
         return ResultUtils.success(isUpdated);
+    }
+
+    /**
+     * 删除用户
+     *
+     * @param deleteRequest 删除用户请求参数
+     * @return 返回删除结果 true or false
+     */
+    @PostMapping("/delete")
+    @ApiOperation("删除用户接口")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest) {
+        Boolean result = userService.deleteUser(deleteRequest);
+        return ResultUtils.success(result);
     }
 
 }
