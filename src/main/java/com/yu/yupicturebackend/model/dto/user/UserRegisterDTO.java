@@ -1,4 +1,4 @@
-package com.yu.yupicturebackend.model.dto;
+package com.yu.yupicturebackend.model.dto.user;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

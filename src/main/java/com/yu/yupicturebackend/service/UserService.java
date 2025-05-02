@@ -1,12 +1,15 @@
 package com.yu.yupicturebackend.service;
 
-import com.yu.yupicturebackend.model.dto.UserLoginDTO;
-import com.yu.yupicturebackend.model.dto.UserRegisterDTO;
+import com.yu.yupicturebackend.model.dto.user.UserAddDTO;
+import com.yu.yupicturebackend.model.dto.user.UserLoginDTO;
+import com.yu.yupicturebackend.model.dto.user.UserRegisterDTO;
 import com.yu.yupicturebackend.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yu.yupicturebackend.model.vo.LoginUserVO;
+import com.yu.yupicturebackend.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author liany
@@ -30,6 +33,22 @@ public interface UserService extends IService<User> {
      * @return 返回脱敏后的登录用户信息
      */
     LoginUserVO getLoginUserVO(User user);
+
+    /**
+     * 获取脱敏后的用户信息
+     *
+     * @param user 原用户信息
+     * @return 返回脱敏后的用户信息
+     */
+    UserVO getUserVO(User user);
+
+    /**
+     * 获取脱敏后的用户信息列表
+     *
+     * @param userList 原用户信息列表
+     * @return 返回脱敏后的用户信息列表
+     */
+    List<UserVO> getUserVOList(List<User> userList);
 
     /**
      * 注册
@@ -64,4 +83,11 @@ public interface UserService extends IService<User> {
      */
     boolean userLogout(HttpServletRequest request);
 
+    /**
+     * 创建用户
+     *
+     * @param userAddDTO 用户创建参数
+     * @return 返回创建用户的 id
+     */
+    Long addUser(UserAddDTO userAddDTO);
 }

@@ -1,14 +1,14 @@
 package com.yu.yupicturebackend.controller;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.yu.yupicturebackend.annotation.AuthCheck;
 import com.yu.yupicturebackend.common.BaseResponse;
 import com.yu.yupicturebackend.common.ResultUtils;
 import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
-import com.yu.yupicturebackend.model.dto.UserLoginDTO;
-import com.yu.yupicturebackend.model.dto.UserRegisterDTO;
+import com.yu.yupicturebackend.model.dto.user.UserAddDTO;
+import com.yu.yupicturebackend.model.dto.user.UserLoginDTO;
+import com.yu.yupicturebackend.model.dto.user.UserRegisterDTO;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.LoginUserVO;
 import com.yu.yupicturebackend.service.UserService;
@@ -16,7 +16,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -84,6 +83,20 @@ public class UserController {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         boolean result = userService.userLogout(request);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 创建用户
+     *
+     * @param userAddDTO 用户创建参数
+     * @return 返回创建用户的 id
+     */
+    @PostMapping("/add")
+    @ApiOperation("创建用户接口")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Long> addUser(@RequestBody UserAddDTO userAddDTO) {
+        Long userId = userService.addUser(userAddDTO);
+        return ResultUtils.success(userId);
     }
 
 }
