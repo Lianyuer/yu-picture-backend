@@ -267,6 +267,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return true;
     }
 
+    /**
+     * 根据 id 获取用户（管理员）
+     *
+     * @param id 用户id
+     * @return 返回用户信息
+     */
+    @Override
+    public User getUserById(long id) {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        User user = this.getById(id);
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
+        return user;
+    }
+
 }
 
 

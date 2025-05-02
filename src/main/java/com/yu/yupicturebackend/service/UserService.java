@@ -108,4 +108,13 @@ public interface UserService extends IService<User> {
      * @return 返回删除结果 true or false
      */
     Boolean deleteUser(DeleteRequest deleteRequest);
+
+    /**
+     * 根据 id 获取用户（管理员）
+     *
+     * @param id 用户id
+     * @return 返回用户信息
+     */
+    User getUserById(long id);
+
 }

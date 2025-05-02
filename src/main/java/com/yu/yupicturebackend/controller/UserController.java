@@ -13,6 +13,7 @@ import com.yu.yupicturebackend.model.dto.user.UserRegisterDTO;
 import com.yu.yupicturebackend.model.dto.user.UserUpdateDTO;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.LoginUserVO;
+import com.yu.yupicturebackend.model.vo.UserVO;
 import com.yu.yupicturebackend.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -127,6 +128,33 @@ public class UserController {
     public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest) {
         Boolean result = userService.deleteUser(deleteRequest);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 根据 id 获取用户
+     *
+     * @param id 用户id
+     * @return 返回用户信息
+     */
+    @GetMapping("/get")
+    @ApiOperation("根据id获取用户接口")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<User> getUserById(long id) {
+        User user = userService.getUserById(id);
+        return ResultUtils.success(user);
+    }
+
+    /**
+     * 根据 id 获取用户包装类
+     *
+     * @param id 用户id
+     * @return 返回用户信息包装类
+     */
+    @GetMapping("/get/vo")
+    @ApiOperation("根据id获取用户包装类接口")
+    public BaseResponse<UserVO> getUserVOById(long id) {
+        User user = userService.getUserById(id);
+        return ResultUtils.success(userService.getUserVO(user));
     }
 
 }
