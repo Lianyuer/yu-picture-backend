@@ -1,5 +1,6 @@
 package com.yu.yupicturebackend.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yu.yupicturebackend.annotation.AuthCheck;
 import com.yu.yupicturebackend.common.BaseResponse;
 import com.yu.yupicturebackend.common.DeleteRequest;
@@ -7,10 +8,7 @@ import com.yu.yupicturebackend.common.ResultUtils;
 import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
-import com.yu.yupicturebackend.model.dto.user.UserAddDTO;
-import com.yu.yupicturebackend.model.dto.user.UserLoginDTO;
-import com.yu.yupicturebackend.model.dto.user.UserRegisterDTO;
-import com.yu.yupicturebackend.model.dto.user.UserUpdateDTO;
+import com.yu.yupicturebackend.model.dto.user.*;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.LoginUserVO;
 import com.yu.yupicturebackend.model.vo.UserVO;
@@ -155,6 +153,20 @@ public class UserController {
     public BaseResponse<UserVO> getUserVOById(long id) {
         User user = userService.getUserById(id);
         return ResultUtils.success(userService.getUserVO(user));
+    }
+
+    /**
+     * 分页查询用户封装列表（仅管理员）
+     *
+     * @param userQueryDTO 用户请求封装参数
+     * @return 返回用户封装列表
+     */
+    @PostMapping("/list/page/vo")
+    @ApiOperation("分页查询用户封装列表接口")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryDTO userQueryDTO) {
+        Page<UserVO> userVOPage = userService.listUserVOByPage(userQueryDTO);
+        return ResultUtils.success(userVOPage);
     }
 
 }

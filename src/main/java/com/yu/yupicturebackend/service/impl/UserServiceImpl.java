@@ -3,6 +3,7 @@ package com.yu.yupicturebackend.service.impl;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yu.yupicturebackend.common.DeleteRequest;
 import com.yu.yupicturebackend.constant.UserConstant;
@@ -279,6 +280,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = this.getById(id);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
         return user;
+    }
+
+    /**
+     * 分页查询用户封装列表（仅管理员）
+     *
+     * @param userQueryDTO 用户请求封装参数
+     * @return 返回用户封装列表
+     */
+    @Override
+    public Page<UserVO> listUserVOByPage(UserQueryDTO userQueryDTO) {
+        ThrowUtils.throwIf(userQueryDTO == null, ErrorCode.PARAMS_ERROR);
+        int current = userQueryDTO.getCurrent();
+        int size = userQueryDTO.getSize();
+        Page<User> userPage = this.page(new Page<>(current, size), this.getQueryWrapper(userQueryDTO));
+        Page<UserVO> userVOPage = new Page<>(current, size);
+        List<User> userPageList = userPage.getRecords();
+        List<UserVO> userVOList = this.getUserVOList(userPageList);
+        BeanUtils.copyProperties(userPage, userVOPage);
+        userVOPage.setRecords(userVOList);
+        return userVOPage;
     }
 
 }

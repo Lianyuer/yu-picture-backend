@@ -1,10 +1,8 @@
 package com.yu.yupicturebackend.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yu.yupicturebackend.common.DeleteRequest;
-import com.yu.yupicturebackend.model.dto.user.UserAddDTO;
-import com.yu.yupicturebackend.model.dto.user.UserLoginDTO;
-import com.yu.yupicturebackend.model.dto.user.UserRegisterDTO;
-import com.yu.yupicturebackend.model.dto.user.UserUpdateDTO;
+import com.yu.yupicturebackend.model.dto.user.*;
 import com.yu.yupicturebackend.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yu.yupicturebackend.model.vo.LoginUserVO;
@@ -117,4 +115,11 @@ public interface UserService extends IService<User> {
      */
     User getUserById(long id);
 
+    /**
+     * 分页查询用户封装列表（仅管理员）
+     *
+     * @param userQueryDTO 用户请求封装参数
+     * @return 返回用户封装列表
+     */
+    Page<UserVO> listUserVOByPage(UserQueryDTO userQueryDTO);
 }
