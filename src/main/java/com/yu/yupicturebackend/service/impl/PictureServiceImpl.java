@@ -121,9 +121,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 对象转封装类
         PictureVO pictureVO = PictureVO.objToVo(picture);
         // 获取关联的用户信息
-        Long pictureId = picture.getId();
-        if (pictureId != null && pictureId > 0) {
-            User user = userService.getById(pictureVO);
+        Long userId = picture.getUserId();
+        if (userId != null && userId > 0) {
+            User user = userService.getById(userId);
             UserVO userVO = userService.getUserVO(user);
             pictureVO.setUser(userVO);
         }
