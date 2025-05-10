@@ -52,7 +52,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
      * @return 返回 QueryWrapper 对象
      */
     @Override
-    public QueryWrapper<User> getQueryWrapper(PictureQueryDTO pictureQueryDTO) {
+    public QueryWrapper<Picture> getQueryWrapper(PictureQueryDTO pictureQueryDTO) {
         ThrowUtils.throwIf(pictureQueryDTO == null, ErrorCode.PARAMS_ERROR, "请求参数为空");
 
         Long id = pictureQueryDTO.getId();
@@ -75,7 +75,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         String sortField = pictureQueryDTO.getSortField();
         String sortOrder = pictureQueryDTO.getSortOrder();
 
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(ObjUtil.isNotNull(id), "id", id);
         queryWrapper.like(StrUtil.isNotBlank(name), "name", name);
         queryWrapper.like(StrUtil.isNotBlank(introduction), "introduction", introduction);

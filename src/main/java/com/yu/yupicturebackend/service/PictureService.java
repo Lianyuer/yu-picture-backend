@@ -23,7 +23,7 @@ public interface PictureService extends IService<Picture> {
      * @param pictureQueryDTO
      * @return
      */
-    QueryWrapper<User> getQueryWrapper(PictureQueryDTO pictureQueryDTO);
+    QueryWrapper<Picture> getQueryWrapper(PictureQueryDTO pictureQueryDTO);
 
     /**
      * 获取图片包装类（单条）
