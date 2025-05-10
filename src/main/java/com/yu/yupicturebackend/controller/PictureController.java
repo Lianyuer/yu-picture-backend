@@ -2,6 +2,7 @@ package com.yu.yupicturebackend.controller;
 
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.yu.yupicturebackend.annotation.AuthCheck;
 import com.yu.yupicturebackend.common.BaseResponse;
@@ -12,6 +13,7 @@ import com.yu.yupicturebackend.exception.BusinessException;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.model.dto.picture.PictureEditDTO;
+import com.yu.yupicturebackend.model.dto.picture.PictureQueryDTO;
 import com.yu.yupicturebackend.model.dto.picture.PictureUpdateDTO;
 import com.yu.yupicturebackend.model.dto.picture.PictureUploadDTO;
 import com.yu.yupicturebackend.model.entity.Picture;
@@ -190,5 +192,42 @@ public class PictureController {
         Picture picture = pictureService.getById(id);
         ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
         return ResultUtils.success(pictureService.getPictureVO(picture));
+    }
+
+    /**
+     * 分页获取图片列表 (仅管理员)
+     *
+     * @param pictureQueryDTO 分页查询请求
+     * @return
+     */
+    @PostMapping("/list/page")
+    @ApiOperation("管理员分页查询图片列表接口")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<Picture>> listPictureByPage(@RequestBody PictureQueryDTO pictureQueryDTO) {
+        int current = pictureQueryDTO.getCurrent();
+        int size = pictureQueryDTO.getSize();
+        // 查询数据库
+        Page<Picture> picturePage = pictureService.page(new Page<>(current, size)
+                , pictureService.getQueryWrapper(pictureQueryDTO));
+        return ResultUtils.success(picturePage);
+    }
+
+    /**
+     * 分页查询图片列表 (封装类)
+     *
+     * @param pictureQueryDTO 分页查询请求
+     * @return
+     */
+    @PostMapping("/list/page/vo")
+    @ApiOperation("分页查询图片列表封装类")
+    public BaseResponse<Page<PictureVO>> listPictureVOByPage(@RequestBody PictureQueryDTO pictureQueryDTO) {
+        int current = pictureQueryDTO.getCurrent();
+        int size = pictureQueryDTO.getSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        // 查询数据库
+        Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
+                pictureService.getQueryWrapper(pictureQueryDTO));
+        return ResultUtils.success(pictureService.getPictureVOPage(picturePage));
     }
 }
