@@ -19,6 +19,7 @@ import com.yu.yupicturebackend.model.dto.picture.PictureUploadDTO;
 import com.yu.yupicturebackend.model.entity.Picture;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.enums.UserRoleEnum;
+import com.yu.yupicturebackend.model.vo.PictureTagCategoryVO;
 import com.yu.yupicturebackend.model.vo.PictureVO;
 import com.yu.yupicturebackend.service.PictureService;
 import com.yu.yupicturebackend.service.UserService;
@@ -31,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -229,5 +231,21 @@ public class PictureController {
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
                 pictureService.getQueryWrapper(pictureQueryDTO));
         return ResultUtils.success(pictureService.getPictureVOPage(picturePage));
+    }
+
+    /**
+     * 获取图片标签分类列表
+     *
+     * @return
+     */
+    @GetMapping("/tag_category")
+    @ApiOperation("获取图片标签分类列表接口")
+    public BaseResponse<PictureTagCategoryVO> listPictureTagCategory() {
+        PictureTagCategoryVO pictureTagCategoryVO = new PictureTagCategoryVO();
+        List<String> tagList = Arrays.asList("热门", "搞笑", "生活", "高清", "艺术", "校园", "背景", "简历", "创意");
+        List<String> categoryList = Arrays.asList("模板", "电商", "表情包", "素材", "海报");
+        pictureTagCategoryVO.setTagList(tagList);
+        pictureTagCategoryVO.setCategoryList(categoryList);
+        return ResultUtils.success(pictureTagCategoryVO);
     }
 }
