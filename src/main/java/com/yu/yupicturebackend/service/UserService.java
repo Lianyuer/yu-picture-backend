@@ -122,4 +122,12 @@ public interface UserService extends IService<User> {
      * @return 返回用户封装列表
      */
     Page<UserVO> listUserVOByPage(UserQueryDTO userQueryDTO);
+
+    /**
+     * 判断用户是否是管理员
+     *
+     * @param user 用户
+     * @return 返回 true or false
+     */
+    Boolean isAdmin(User user);
 }

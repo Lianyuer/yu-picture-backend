@@ -11,6 +11,7 @@ import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.model.dto.user.*;
 import com.yu.yupicturebackend.model.entity.User;
+import com.yu.yupicturebackend.model.enums.UserRoleEnum;
 import com.yu.yupicturebackend.model.vo.LoginUserVO;
 import com.yu.yupicturebackend.model.vo.UserVO;
 import com.yu.yupicturebackend.service.UserService;
@@ -300,6 +301,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         BeanUtils.copyProperties(userPage, userVOPage);
         userVOPage.setRecords(userVOList);
         return userVOPage;
+    }
+
+    /**
+     * 判断用户是否是管理员
+     *
+     * @param user 用户
+     * @return 返回 true or false
+     */
+    @Override
+    public Boolean isAdmin(User user) {
+        return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
     }
 
 }

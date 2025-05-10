@@ -2,10 +2,14 @@ package com.yu.yupicturebackend.controller;
 
 import com.yu.yupicturebackend.annotation.AuthCheck;
 import com.yu.yupicturebackend.common.BaseResponse;
+import com.yu.yupicturebackend.common.DeleteRequest;
 import com.yu.yupicturebackend.common.ResultUtils;
 import com.yu.yupicturebackend.constant.UserConstant;
-import com.yu.yupicturebackend.manager.FileManager;
+import com.yu.yupicturebackend.exception.BusinessException;
+import com.yu.yupicturebackend.exception.ErrorCode;
+import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.model.dto.picture.PictureUploadDTO;
+import com.yu.yupicturebackend.model.entity.Picture;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.PictureVO;
 import com.yu.yupicturebackend.service.PictureService;
@@ -13,10 +17,7 @@ import com.yu.yupicturebackend.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -52,6 +53,33 @@ public class PictureController {
         User loginUser = userService.getLoginUser(request);
         PictureVO pictureVO = pictureService.uploadPicture(multipartFile, pictureUploadDTO, loginUser);
         return ResultUtils.success(pictureVO);
+    }
+
+    /**
+     * 删除图片
+     *
+     * @param deleteRequest 删除文件请求
+     * @param request 携带 http 请求信息的对象
+     * @return 返回 true or false
+     */
+    @PostMapping("/delete")
+    @ApiOperation("删除图片接口")
+    public BaseResponse<Boolean> deletePicture(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+        // 参数校验
+        ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        // 查询数据库中是否存在图片
+        Long pictureId = deleteRequest.getId();
+        Picture oldPicture = pictureService.getById(pictureId);
+        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        // 仅本人或者管理员可进行删除
+        if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        // 操作数据库
+        boolean result = pictureService.removeById(pictureId);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
     }
 
 }
