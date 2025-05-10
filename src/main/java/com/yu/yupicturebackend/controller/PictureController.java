@@ -1,6 +1,8 @@
 package com.yu.yupicturebackend.controller;
 
 import cn.hutool.json.JSONUtil;
+import cn.hutool.log.Log;
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.yu.yupicturebackend.annotation.AuthCheck;
 import com.yu.yupicturebackend.common.BaseResponse;
 import com.yu.yupicturebackend.common.DeleteRequest;
@@ -155,5 +157,38 @@ public class PictureController {
         boolean result = pictureService.updateById(picture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 根据 id 获取图片 (仅管理员)
+     *
+     * @param id 图片 id
+     * @return 返回图片信息
+     */
+    @GetMapping("/get")
+    @ApiOperation("管理员根据 id 获取图片接口")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Picture> getPictureById(long id) {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        // 查询数据库
+        Picture picture = pictureService.getById(id);
+        ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
+        return ResultUtils.success(picture);
+    }
+
+    /**
+     * 根据 id 获取图片封装信息
+     *
+     * @param id 图片 id
+     * @return 返回图片封装信息
+     */
+    @GetMapping("/get/vo")
+    @ApiOperation("根据 id 获取图片封装信息接口")
+    public BaseResponse<PictureVO> getPictureVOById(long id) {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        // 查询数据库
+        Picture picture = pictureService.getById(id);
+        ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
+        return ResultUtils.success(pictureService.getPictureVO(picture));
     }
 }
