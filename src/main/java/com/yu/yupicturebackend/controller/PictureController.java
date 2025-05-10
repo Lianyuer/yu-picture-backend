@@ -9,10 +9,12 @@ import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.BusinessException;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
+import com.yu.yupicturebackend.model.dto.picture.PictureEditDTO;
 import com.yu.yupicturebackend.model.dto.picture.PictureUpdateDTO;
 import com.yu.yupicturebackend.model.dto.picture.PictureUploadDTO;
 import com.yu.yupicturebackend.model.entity.Picture;
 import com.yu.yupicturebackend.model.entity.User;
+import com.yu.yupicturebackend.model.enums.UserRoleEnum;
 import com.yu.yupicturebackend.model.vo.PictureVO;
 import com.yu.yupicturebackend.service.PictureService;
 import com.yu.yupicturebackend.service.UserService;
@@ -25,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -110,6 +113,44 @@ public class PictureController {
         Long pictureId = picture.getId();
         Picture oldPicture = pictureService.getById(pictureId);
         ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        // 操作数据库
+        boolean result = pictureService.updateById(picture);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 编辑图片 (给用户使用)
+     *
+     * @param pictureEditDTO 编辑用户请求
+     * @param request        携带 http 请求信息的对象
+     * @return 返回 true or false
+     */
+    @PostMapping("/edit")
+    @ApiOperation("用户编辑图片接口")
+    public BaseResponse<Boolean> editPicture(@RequestBody PictureEditDTO pictureEditDTO, HttpServletRequest request) {
+        // 参数校验
+        ThrowUtils.throwIf(pictureEditDTO == null || pictureEditDTO.getId() <= 0, ErrorCode.PARAMS_ERROR);
+        Picture picture = new Picture();
+        BeanUtils.copyProperties(pictureEditDTO, picture);
+        // 标签 list => String
+        List<String> tags = pictureEditDTO.getTags();
+        String tagsStr = JSONUtil.toJsonStr(tags);
+        picture.setTags(tagsStr);
+        // 设置编辑时间
+        picture.setEditTime(new Date());
+        // 数据校验
+        pictureService.validatePicture(picture);
+        // 校验图片是否存在
+        Long pictureId = picture.getId();
+        Picture oldPicture = pictureService.getById(pictureId);
+        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        // 当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        // 不是创建图片的用户或者不是管理员，则无权限编辑
+        if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
         // 操作数据库
         boolean result = pictureService.updateById(picture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
