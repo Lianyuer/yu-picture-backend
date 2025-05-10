@@ -1,5 +1,6 @@
 package com.yu.yupicturebackend.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.yu.yupicturebackend.annotation.AuthCheck;
 import com.yu.yupicturebackend.common.BaseResponse;
 import com.yu.yupicturebackend.common.DeleteRequest;
@@ -8,6 +9,7 @@ import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.BusinessException;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
+import com.yu.yupicturebackend.model.dto.picture.PictureUpdateDTO;
 import com.yu.yupicturebackend.model.dto.picture.PictureUploadDTO;
 import com.yu.yupicturebackend.model.entity.Picture;
 import com.yu.yupicturebackend.model.entity.User;
@@ -17,11 +19,13 @@ import com.yu.yupicturebackend.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -59,7 +63,7 @@ public class PictureController {
      * 删除图片
      *
      * @param deleteRequest 删除文件请求
-     * @param request 携带 http 请求信息的对象
+     * @param request       携带 http 请求信息的对象
      * @return 返回 true or false
      */
     @PostMapping("/delete")
@@ -82,4 +86,33 @@ public class PictureController {
         return ResultUtils.success(true);
     }
 
+    /**
+     * 更新图片 (仅管理员)
+     *
+     * @param pictureUpdateDTO 图片更新请求
+     * @return 返回 true or false
+     */
+    @PostMapping("/update")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation("管理员更新图片接口")
+    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateDTO pictureUpdateDTO) {
+        // 参数校验
+        ThrowUtils.throwIf(pictureUpdateDTO == null || pictureUpdateDTO.getId() <= 0, ErrorCode.PARAMS_ERROR);
+        Picture picture = new Picture();
+        BeanUtils.copyProperties(pictureUpdateDTO, picture);
+        // 标签 json 格式转换
+        List<String> tags = pictureUpdateDTO.getTags();
+        String tagsStr = JSONUtil.toJsonStr(tags);
+        picture.setTags(tagsStr);
+        // 数据校验
+        pictureService.validatePicture(picture);
+        // 判断图片是否存在
+        Long pictureId = picture.getId();
+        Picture oldPicture = pictureService.getById(pictureId);
+        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        // 操作数据库
+        boolean result = pictureService.updateById(picture);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
 }
