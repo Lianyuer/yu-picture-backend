@@ -9,7 +9,7 @@ import com.yu.yupicturebackend.common.ResultUtils;
 import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.BusinessException;
 import com.yu.yupicturebackend.exception.ErrorCode;
-import com.yu.yupicturebackend.manage.CosManage;
+import com.yu.yupicturebackend.manager.CosManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +25,7 @@ import java.io.IOException;
 public class FileController {
 
     @Resource
-    private CosManage cosManage;
+    private CosManager cosManage;
 
     /**
      * 测试文件上传
