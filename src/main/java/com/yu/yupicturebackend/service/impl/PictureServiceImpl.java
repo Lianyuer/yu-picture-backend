@@ -98,9 +98,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             // 需要拼接查询条件
             // and (name like "%xxx%" or introduction like "%xxx%")
             queryWrapper.and(
-                    qw -> qw.like("name", name)
+                    qw -> qw.like("name", searchText)
                             .or()
-                            .like("introduction", introduction)
+                            .like("introduction", searchText)
             );
         }
         queryWrapper.eq(ObjUtil.isNotEmpty(createTime), "create_time", createTime);
