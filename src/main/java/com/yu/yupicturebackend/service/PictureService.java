@@ -3,12 +3,15 @@ package com.yu.yupicturebackend.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yu.yupicturebackend.model.dto.picture.PictureQueryDTO;
+import com.yu.yupicturebackend.model.dto.picture.PictureReviewDTO;
 import com.yu.yupicturebackend.model.dto.picture.PictureUploadDTO;
 import com.yu.yupicturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.PictureVO;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author liany
@@ -43,9 +46,18 @@ public interface PictureService extends IService<Picture> {
 
     /**
      * 校验图片
+     *
      * @param picture
      */
     void validatePicture(Picture picture);
+
+    /**
+     * 填充审核参数
+     *
+     * @param picture   图片
+     * @param loginUser 当前登录用户
+     */
+    void fillReviewParams(Picture picture, User loginUser);
 
     /**
      * 上传图片
@@ -56,4 +68,12 @@ public interface PictureService extends IService<Picture> {
      * @return 返回上传的图片封装信息
      */
     PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadDTO pictureUploadDTO, User loginUser);
+
+    /**
+     * 图片审核
+     *
+     * @param pictureReviewDTO 图片审核参数
+     * @param loginUser        当前登录用户
+     */
+    void pictureReview(PictureReviewDTO pictureReviewDTO, User loginUser);
 }
