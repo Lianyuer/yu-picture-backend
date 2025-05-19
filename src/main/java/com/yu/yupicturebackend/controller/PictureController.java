@@ -207,13 +207,13 @@ public class PictureController {
     @PostMapping("/list/page")
     @ApiOperation("管理员分页查询图片列表接口")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Page<Picture>> listPictureByPage(@RequestBody PictureQueryDTO pictureQueryDTO) {
+    public BaseResponse<Page<PictureVO>> listPictureByPage(@RequestBody PictureQueryDTO pictureQueryDTO) {
         int current = pictureQueryDTO.getCurrent();
         int size = pictureQueryDTO.getSize();
         // 查询数据库
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size)
                 , pictureService.getQueryWrapper(pictureQueryDTO));
-        return ResultUtils.success(picturePage);
+        return ResultUtils.success(pictureService.getPictureVOPage(picturePage));
     }
 
     /**
