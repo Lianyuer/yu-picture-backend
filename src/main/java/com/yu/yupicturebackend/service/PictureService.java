@@ -62,12 +62,12 @@ public interface PictureService extends IService<Picture> {
     /**
      * 上传图片
      *
-     * @param multipartFile    文件
+     * @param inputSource      文件输入源
      * @param pictureUploadDTO 上传图片请求的参数封装类
      * @param loginUser        当前登录用户
      * @return 返回上传的图片封装信息
      */
-    PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadDTO pictureUploadDTO, User loginUser);
+    PictureVO uploadPicture(Object inputSource, PictureUploadDTO pictureUploadDTO, User loginUser);
 
     /**
      * 图片审核

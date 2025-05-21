@@ -66,6 +66,24 @@ public class PictureController {
     }
 
     /**
+     * 通过 URL 上传图片 (可重新上传)
+     *
+     * @param pictureUploadDTO 上传图片请求的参数封装类
+     * @param request          包含 http 请求信息的对象
+     * @return 返回上传的图片封装信息
+     */
+    @PostMapping("/upload/url")
+    @ApiOperation("通过 URL 上传图片接口")
+    public BaseResponse<PictureVO> uploadPictureByUrl(
+            @RequestBody PictureUploadDTO pictureUploadDTO,
+            HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        String fileUrl = pictureUploadDTO.getFileUrl();
+        PictureVO pictureVO = pictureService.uploadPicture(fileUrl, pictureUploadDTO, loginUser);
+        return ResultUtils.success(pictureVO);
+    }
+
+    /**
      * 删除图片
      *
      * @param deleteRequest 删除文件请求

@@ -11,6 +11,9 @@ import com.yu.yupicturebackend.exception.BusinessException;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.manager.FileManager;
+import com.yu.yupicturebackend.manager.upload.FilePictureUpload;
+import com.yu.yupicturebackend.manager.upload.PictureUploadTemplate;
+import com.yu.yupicturebackend.manager.upload.UrlPictureUpload;
 import com.yu.yupicturebackend.model.dto.file.UploadPictureResult;
 import com.yu.yupicturebackend.model.dto.picture.PictureQueryDTO;
 import com.yu.yupicturebackend.model.dto.picture.PictureReviewDTO;
@@ -48,6 +51,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private FilePictureUpload filePictureUpload;
+
+    @Resource
+    private UrlPictureUpload urlPictureUpload;
 
     /**
      * 获取查询图片的包装对象
@@ -224,13 +233,13 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     /**
      * 上传图片
      *
-     * @param multipartFile    文件
+     * @param inputSource      文件输入源
      * @param pictureUploadDTO 上传图片请求的参数封装类
      * @param loginUser        当前登录用户
      * @return 返回上传的图片封装信息
      */
     @Override
-    public PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadDTO pictureUploadDTO, User loginUser) {
+    public PictureVO uploadPicture(Object inputSource, PictureUploadDTO pictureUploadDTO, User loginUser) {
         // 参数校验
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
         // 判断是新增还是编辑
@@ -250,7 +259,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         // 上传图片，得到图片信息
         // 按照用户 id，划分目录
         String uploadPathPrefix = String.format("public/%s", loginUser.getId());
-        UploadPictureResult uploadPictureResult = fileManager.uploadPicture(multipartFile, uploadPathPrefix);
+        // 根据 inputSource 的类型区分上传方式
+        PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
+        if (inputSource instanceof String) {
+            pictureUploadTemplate = urlPictureUpload;
+        }
+        UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
         // 构造要入库的图片信息
         Picture picture = new Picture();
         BeanUtils.copyProperties(uploadPictureResult, picture);
