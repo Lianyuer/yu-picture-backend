@@ -84,6 +84,24 @@ public class PictureController {
     }
 
     /**
+     * 批量抓取图片
+     *
+     * @param pictureUploadByBatchDTO
+     * @param request
+     * @return 成功创建的图片数
+     */
+    @PostMapping("/upload/batch")
+    @ApiOperation("批量抓取图片接口")
+    public BaseResponse<Integer> uploadPictureByBatch(
+            @RequestBody PictureUploadByBatchDTO pictureUploadByBatchDTO,
+            HttpServletRequest request) {
+        ThrowUtils.throwIf(pictureUploadByBatchDTO == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        int uploadCount = pictureService.uploadPictureByBatch(pictureUploadByBatchDTO, loginUser);
+        return ResultUtils.success(uploadCount);
+    }
+
+    /**
      * 删除图片
      *
      * @param deleteRequest 删除文件请求
