@@ -287,8 +287,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         }
         if (pictureUploadDTO != null && StrUtil.isNotBlank(pictureUploadDTO.getPicName())) {
             picName = pictureUploadDTO.getPicName();
+            picture.setName(picName);
         }
-        picture.setName(picName);
         // 补全审核参数
         fillReviewParams(picture, loginUser);
         boolean result = this.saveOrUpdate(picture);
