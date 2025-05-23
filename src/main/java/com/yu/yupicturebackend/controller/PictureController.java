@@ -92,6 +92,7 @@ public class PictureController {
      */
     @PostMapping("/upload/batch")
     @ApiOperation("批量抓取图片接口")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Integer> uploadPictureByBatch(
             @RequestBody PictureUploadByBatchDTO pictureUploadByBatchDTO,
             HttpServletRequest request) {
