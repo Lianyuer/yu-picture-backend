@@ -44,4 +44,9 @@ public class UploadPictureResult implements Serializable {
      */
     private String picFormat;
 
+    /**
+     * 缩略图 url
+     */
+    private String thumbnailUrl;
+
 }

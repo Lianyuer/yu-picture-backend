@@ -121,6 +121,11 @@ public class Picture implements Serializable {
      */
     private Date reviewTime;
 
+    /**
+     * 缩略图 url
+     */
+    private String thumbnailUrl;
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -152,7 +157,8 @@ public class Picture implements Serializable {
                 && (this.getReviewStatus() == null ? other.getReviewStatus() == null : this.getReviewStatus().equals(other.getReviewStatus()))
                 && (this.getReviewMessage() == null ? other.getReviewMessage() == null : this.getReviewMessage().equals(other.getReviewMessage()))
                 && (this.getReviewerId() == null ? other.getReviewerId() == null : this.getReviewerId().equals(other.getReviewerId()))
-                && (this.getReviewTime() == null ? other.getReviewTime() == null : this.getReviewTime().equals(other.getReviewTime()));
+                && (this.getReviewTime() == null ? other.getReviewTime() == null : this.getReviewTime().equals(other.getReviewTime()))
+                && (this.getThumbnailUrl() == null ? other.getThumbnailUrl() == null : this.getThumbnailUrl().equals(other.getThumbnailUrl()));
     }
 
     @Override
@@ -179,6 +185,7 @@ public class Picture implements Serializable {
         result = prime * result + ((getReviewMessage() == null) ? 0 : getReviewMessage().hashCode());
         result = prime * result + ((getReviewerId() == null) ? 0 : getReviewerId().hashCode());
         result = prime * result + ((getReviewTime() == null) ? 0 : getReviewTime().hashCode());
+        result = prime * result + ((getThumbnailUrl() == null) ? 0 : getThumbnailUrl().hashCode());
         return result;
     }
 
@@ -208,6 +215,7 @@ public class Picture implements Serializable {
         sb.append(", reviewMessage=").append(reviewMessage);
         sb.append(", reviewerId=").append(reviewerId);
         sb.append(", reviewTime=").append(reviewTime);
+        sb.append(", thumbnailUrl=").append(thumbnailUrl);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
