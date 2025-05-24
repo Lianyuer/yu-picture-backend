@@ -1,5 +1,7 @@
 package com.yu.yupicturebackend.controller;
 
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -25,6 +27,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @Slf4j
@@ -45,6 +51,9 @@ public class PictureController {
 
     @Resource
     private PictureService pictureService;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 上传图片
@@ -272,6 +281,50 @@ public class PictureController {
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
                 pictureService.getQueryWrapper(pictureQueryDTO));
         return ResultUtils.success(pictureService.getPictureVOPage(picturePage));
+    }
+
+    /**
+     * 分页查询图片列表 (封装类)(使用缓存)
+     *
+     * @param pictureQueryDTO 分页查询请求
+     * @return
+     */
+    @PostMapping("/list/page/vo/cache")
+    @ApiOperation("使用缓存分页查询图片列表封装类")
+    public BaseResponse<Page<PictureVO>> listPictureVOByPageWithCache(@RequestBody PictureQueryDTO pictureQueryDTO) {
+        int current = pictureQueryDTO.getCurrent();
+        int size = pictureQueryDTO.getSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        // 普通用户默认只能查看已过审的数据
+        pictureQueryDTO.setReviewStatus(PictureReviewEnum.PASS.getValue());
+
+        // 查询缓存，若缓存中没有， 再查数据库
+        // 构建缓存的 key
+        String queryCondition = JSONUtil.toJsonStr(pictureQueryDTO);
+        String hashKey = DigestUtils.md5DigestAsHex(queryCondition.getBytes());
+        String redisKey = String.format("yuzipicture:listPictureVOByPage:%s", hashKey);
+        // 创建操作对象，操作 Redis，从缓存中查询
+        ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
+        String cachedValue = valueOps.get(redisKey);
+        if (cachedValue != null) {
+            // 如果缓存命中，缓存结果
+            Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
+            return ResultUtils.success(cachedPage);
+        }
+        // 缓存未命中
+        // 查询数据库
+        Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
+                pictureService.getQueryWrapper(pictureQueryDTO));
+        Page<PictureVO> pictureVOPage = pictureService.getPictureVOPage(picturePage);
+
+        // 存入 Redis 缓存
+        String cacheValue = JSONUtil.toJsonStr(pictureVOPage);
+        // 设置缓存过期时间，5 - 10 分钟过期，防止缓存雪崩
+        int cacheExpireTime = 300 + RandomUtil.randomInt(0, 300);
+        valueOps.set(redisKey, cacheValue, cacheExpireTime, TimeUnit.SECONDS);
+
+        return ResultUtils.success(pictureVOPage);
     }
 
     /**
