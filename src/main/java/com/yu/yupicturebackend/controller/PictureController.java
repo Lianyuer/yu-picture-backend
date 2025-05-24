@@ -56,8 +56,8 @@ public class PictureController {
     @Resource
     private PictureService pictureService;
 
-//    @Resource
-//    private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 本地缓存 Caffeine
@@ -347,6 +347,45 @@ public class PictureController {
      * @param pictureQueryDTO 分页查询请求
      * @return
      */
+//    @PostMapping("/list/page/vo/cache")
+//    @ApiOperation("使用缓存分页查询图片列表封装类")
+//    public BaseResponse<Page<PictureVO>> listPictureVOByPageWithCache(@RequestBody PictureQueryDTO pictureQueryDTO) {
+//        int current = pictureQueryDTO.getCurrent();
+//        int size = pictureQueryDTO.getSize();
+//        // 限制爬虫
+//        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+//        // 普通用户默认只能查看已过审的数据
+//        pictureQueryDTO.setReviewStatus(PictureReviewEnum.PASS.getValue());
+//
+//        // 查询缓存，若缓存中没有， 再查数据库
+//        // 构建缓存的 key
+//        String queryCondition = JSONUtil.toJsonStr(pictureQueryDTO);
+//        String hashKey = DigestUtils.md5DigestAsHex(queryCondition.getBytes());
+//        String cacheKey = String.format("listPictureVOByPage:%s", hashKey);
+//        String cachedValue = LOCAL_CACHE.getIfPresent(cacheKey);
+//        if (cachedValue != null) {
+//            // 如果缓存命中，缓存结果
+//            Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
+//            return ResultUtils.success(cachedPage);
+//        }
+//        // 缓存未命中
+//        // 查询数据库
+//        Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
+//                pictureService.getQueryWrapper(pictureQueryDTO));
+//        Page<PictureVO> pictureVOPage = pictureService.getPictureVOPage(picturePage);
+//
+//        // 存入 缓存
+//        String cacheValue = JSONUtil.toJsonStr(pictureVOPage);
+//        LOCAL_CACHE.put(cacheKey, cacheValue);
+//        return ResultUtils.success(pictureVOPage);
+//    }
+
+    /**
+     * 分页查询图片列表 (封装类)(使用多级缓存 redis 分布式缓存 + Caffeine 本地缓存)
+     *
+     * @param pictureQueryDTO 分页查询请求
+     * @return
+     */
     @PostMapping("/list/page/vo/cache")
     @ApiOperation("使用缓存分页查询图片列表封装类")
     public BaseResponse<Page<PictureVO>> listPictureVOByPageWithCache(@RequestBody PictureQueryDTO pictureQueryDTO) {
@@ -361,22 +400,39 @@ public class PictureController {
         // 构建缓存的 key
         String queryCondition = JSONUtil.toJsonStr(pictureQueryDTO);
         String hashKey = DigestUtils.md5DigestAsHex(queryCondition.getBytes());
-        String cacheKey = String.format("listPictureVOByPage:%s", hashKey);
+        String cacheKey = String.format("yuzipicture:listPictureVOByPage:%s", hashKey);
+
+        // 1、查询本地缓存 (Caffeine)
         String cachedValue = LOCAL_CACHE.getIfPresent(cacheKey);
         if (cachedValue != null) {
-            // 如果缓存命中，缓存结果
+            // 本地缓存命中，返回
+            Page<PictureVO> cachePage = JSONUtil.toBean(cachedValue, Page.class);
+            return ResultUtils.success(cachePage);
+        }
+
+        // 2、查询分布式缓存 (Redis)
+        ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
+        cachedValue = valueOps.get(cacheKey);
+        if (cachedValue != null) {
+            // 如果命中 Redis，存入本地缓存并返回
+            LOCAL_CACHE.put(cacheKey, cachedValue);
             Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
             return ResultUtils.success(cachedPage);
         }
-        // 缓存未命中
-        // 查询数据库
+
+        // 缓存均未命中
+        // 3、查询数据库
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
                 pictureService.getQueryWrapper(pictureQueryDTO));
         Page<PictureVO> pictureVOPage = pictureService.getPictureVOPage(picturePage);
 
-        // 存入 缓存
+        // 4、更新缓存
         String cacheValue = JSONUtil.toJsonStr(pictureVOPage);
+        // 更新本地缓存
         LOCAL_CACHE.put(cacheKey, cacheValue);
+        // 更新 Redis 缓存，设置过期时间为 5 分钟
+        valueOps.set(cacheKey, cacheValue, 5, TimeUnit.MINUTES);
+
         return ResultUtils.success(pictureVOPage);
     }
 
