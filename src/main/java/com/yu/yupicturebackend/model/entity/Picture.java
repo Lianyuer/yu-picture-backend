@@ -126,6 +126,11 @@ public class Picture implements Serializable {
      */
     private String thumbnailUrl;
 
+    /**
+     * 空间 id（为空表示公共空间）
+     */
+    private Long spaceId;
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -158,7 +163,8 @@ public class Picture implements Serializable {
                 && (this.getReviewMessage() == null ? other.getReviewMessage() == null : this.getReviewMessage().equals(other.getReviewMessage()))
                 && (this.getReviewerId() == null ? other.getReviewerId() == null : this.getReviewerId().equals(other.getReviewerId()))
                 && (this.getReviewTime() == null ? other.getReviewTime() == null : this.getReviewTime().equals(other.getReviewTime()))
-                && (this.getThumbnailUrl() == null ? other.getThumbnailUrl() == null : this.getThumbnailUrl().equals(other.getThumbnailUrl()));
+                && (this.getThumbnailUrl() == null ? other.getThumbnailUrl() == null : this.getThumbnailUrl().equals(other.getThumbnailUrl()))
+                && (this.getSpaceId() == null ? other.getSpaceId() == null : this.getSpaceId().equals(other.getSpaceId()));
     }
 
     @Override
@@ -186,6 +192,7 @@ public class Picture implements Serializable {
         result = prime * result + ((getReviewerId() == null) ? 0 : getReviewerId().hashCode());
         result = prime * result + ((getReviewTime() == null) ? 0 : getReviewTime().hashCode());
         result = prime * result + ((getThumbnailUrl() == null) ? 0 : getThumbnailUrl().hashCode());
+        result = prime * result + ((getSpaceId() == null) ? 0 : getSpaceId().hashCode());
         return result;
     }
 
@@ -217,6 +224,7 @@ public class Picture implements Serializable {
         sb.append(", reviewTime=").append(reviewTime);
         sb.append(", thumbnailUrl=").append(thumbnailUrl);
         sb.append(", serialVersionUID=").append(serialVersionUID);
+        sb.append(", spaceId=").append(spaceId);
         sb.append("]");
         return sb.toString();
     }
