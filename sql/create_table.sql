@@ -29,6 +29,8 @@ create index idx_userName
     on user (user_name)
     comment '索引_用户昵称';
 
+##################################################################################
+
 -- 图片表
 create table if not exists picture
 (
@@ -69,3 +71,33 @@ CREATE INDEX idx_reviewStatus ON picture (review_status);
 ALTER TABLE picture
     -- 添加新列
     ADD COLUMN thumbnail_url varchar(512) NULL COMMENT '缩略图 url';
+
+-- 添加新列
+ALTER TABLE picture
+    ADD COLUMN space_id  bigint  null comment '空间 id（为空表示公共空间）';
+
+-- 创建索引
+CREATE INDEX idx_spaceId ON picture (space_id);
+
+##################################################################################
+
+-- 空间表
+create table if not exists space
+(
+    id         bigint auto_increment comment 'id' primary key,
+    space_name  varchar(128)                       null comment '空间名称',
+    space_level int      default 0                 null comment '空间级别：0-普通版 1-专业版 2-旗舰版',
+    max_size    bigint   default 0                 null comment '空间图片的最大总大小',
+    max_count   bigint   default 0                 null comment '空间图片的最大数量',
+    total_size  bigint   default 0                 null comment '当前空间下图片的总大小',
+    total_count bigint   default 0                 null comment '当前空间下的图片数量',
+    user_id     bigint                             not null comment '创建用户 id',
+    create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    edit_time   datetime default CURRENT_TIMESTAMP not null comment '编辑时间',
+    update_time datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    is_delete   tinyint  default 0                 not null comment '是否删除',
+    -- 索引设计
+    index idx_userId (user_id),        -- 提升基于用户的查询效率
+    index idx_spaceName (space_name),  -- 提升基于空间名称的查询效率
+    index idx_spaceLevel (space_level) -- 提升按空间级别查询的效率
+) comment '空间' collate = utf8mb4_unicode_ci;
