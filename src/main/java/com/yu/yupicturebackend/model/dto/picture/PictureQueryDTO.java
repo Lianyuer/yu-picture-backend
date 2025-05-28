@@ -73,6 +73,16 @@ public class PictureQueryDTO extends PageRequest implements Serializable {
     private Long userId;
 
     /**
+     * 空间 id
+     */
+    private Long spaceId;
+
+    /**
+     * 是否只查询 spaceId 为 null 的数据
+     */
+    private boolean nullSpaceId;
+
+    /**
      * 搜索关键词（同时搜名称、简介等）
      */
     private String searchText;

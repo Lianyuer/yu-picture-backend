@@ -7,13 +7,15 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import lombok.Data;
 
 /**
  * 图片表
+ *
  * @TableName picture
  */
-@TableName(value ="picture")
+@TableName(value = "picture")
 @Data
 public class Picture implements Serializable {
 
@@ -81,6 +83,11 @@ public class Picture implements Serializable {
     private Long userId;
 
     /**
+     * 空间 id（为空表示公共空间）
+     */
+    private Long spaceId;
+
+    /**
      * 创建时间
      */
     private Date createTime;
@@ -126,11 +133,6 @@ public class Picture implements Serializable {
      */
     private String thumbnailUrl;
 
-    /**
-     * 空间 id（为空表示公共空间）
-     */
-    private Long spaceId;
-
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -155,6 +157,7 @@ public class Picture implements Serializable {
                 && (this.getPicScale() == null ? other.getPicScale() == null : this.getPicScale().equals(other.getPicScale()))
                 && (this.getPicFormat() == null ? other.getPicFormat() == null : this.getPicFormat().equals(other.getPicFormat()))
                 && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
+                && (this.getSpaceId() == null ? other.getSpaceId() == null : this.getSpaceId().equals(other.getSpaceId()))
                 && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
                 && (this.getEditTime() == null ? other.getEditTime() == null : this.getEditTime().equals(other.getEditTime()))
                 && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
@@ -163,8 +166,7 @@ public class Picture implements Serializable {
                 && (this.getReviewMessage() == null ? other.getReviewMessage() == null : this.getReviewMessage().equals(other.getReviewMessage()))
                 && (this.getReviewerId() == null ? other.getReviewerId() == null : this.getReviewerId().equals(other.getReviewerId()))
                 && (this.getReviewTime() == null ? other.getReviewTime() == null : this.getReviewTime().equals(other.getReviewTime()))
-                && (this.getThumbnailUrl() == null ? other.getThumbnailUrl() == null : this.getThumbnailUrl().equals(other.getThumbnailUrl()))
-                && (this.getSpaceId() == null ? other.getSpaceId() == null : this.getSpaceId().equals(other.getSpaceId()));
+                && (this.getThumbnailUrl() == null ? other.getThumbnailUrl() == null : this.getThumbnailUrl().equals(other.getThumbnailUrl()));
     }
 
     @Override
@@ -183,6 +185,7 @@ public class Picture implements Serializable {
         result = prime * result + ((getPicScale() == null) ? 0 : getPicScale().hashCode());
         result = prime * result + ((getPicFormat() == null) ? 0 : getPicFormat().hashCode());
         result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
+        result = prime * result + ((getSpaceId() == null) ? 0 : getSpaceId().hashCode());
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getEditTime() == null) ? 0 : getEditTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
@@ -192,7 +195,6 @@ public class Picture implements Serializable {
         result = prime * result + ((getReviewerId() == null) ? 0 : getReviewerId().hashCode());
         result = prime * result + ((getReviewTime() == null) ? 0 : getReviewTime().hashCode());
         result = prime * result + ((getThumbnailUrl() == null) ? 0 : getThumbnailUrl().hashCode());
-        result = prime * result + ((getSpaceId() == null) ? 0 : getSpaceId().hashCode());
         return result;
     }
 
@@ -214,6 +216,7 @@ public class Picture implements Serializable {
         sb.append(", picScale=").append(picScale);
         sb.append(", picFormat=").append(picFormat);
         sb.append(", userId=").append(userId);
+        sb.append(", spaceId=").append(spaceId);
         sb.append(", createTime=").append(createTime);
         sb.append(", editTime=").append(editTime);
         sb.append(", updateTime=").append(updateTime);
@@ -224,7 +227,6 @@ public class Picture implements Serializable {
         sb.append(", reviewTime=").append(reviewTime);
         sb.append(", thumbnailUrl=").append(thumbnailUrl);
         sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append(", spaceId=").append(spaceId);
         sb.append("]");
         return sb.toString();
     }

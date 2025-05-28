@@ -2,14 +2,13 @@ package com.yu.yupicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yu.yupicturebackend.model.dto.picture.PictureQueryDTO;
-import com.yu.yupicturebackend.model.dto.picture.PictureReviewDTO;
-import com.yu.yupicturebackend.model.dto.picture.PictureUploadByBatchDTO;
-import com.yu.yupicturebackend.model.dto.picture.PictureUploadDTO;
+import com.yu.yupicturebackend.common.DeleteRequest;
+import com.yu.yupicturebackend.model.dto.picture.*;
 import com.yu.yupicturebackend.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.PictureVO;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -86,4 +85,28 @@ public interface PictureService extends IService<Picture> {
      * @return 成功创建的图片数
      */
     Integer uploadPictureByBatch(PictureUploadByBatchDTO pictureUploadByBatchDTO, User loginUser);
+
+    /**
+     * 删除图片
+     *
+     * @param pictureId
+     * @param loginUser
+     */
+    void deletePicture(long pictureId, User loginUser);
+
+    /**
+     * 编辑图片
+     *
+     * @param pictureEditDTO
+     * @param loginUser
+     */
+    void editPicture(PictureEditDTO pictureEditDTO, User loginUser);
+
+    /**
+     * 校验空间图片的权限
+     *
+     * @param loginUser
+     * @param picture
+     */
+    void checkPictureAuth(User loginUser, Picture picture);
 }
