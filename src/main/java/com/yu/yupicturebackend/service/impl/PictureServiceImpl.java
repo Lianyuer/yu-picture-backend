@@ -126,7 +126,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         queryWrapper.eq(ObjUtil.isNotEmpty(picFormat), "pic_format", picFormat);
         queryWrapper.eq(ObjUtil.isNotEmpty(userId), "user_id", userId);
         queryWrapper.isNull(nullSpaceId, "space_id");
-        queryWrapper.eq(ObjUtil.isNotEmpty(nullSpaceId), "user_id", userId);
+        queryWrapper.eq(ObjUtil.isNotEmpty(spaceId), "space_id", spaceId);
         // 从多字段中查询
         if (StrUtil.isNotBlank(searchText)) {
             // 需要拼接查询条件
@@ -346,8 +346,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             // 更新空间的使用额度
             spaceService.lambdaUpdate()
                     .eq(Space::getId, finalSpaceId)
-                    .setSql("totalSize = totalSize + " + picture.getPicSize())
-                    .setSql("totalCount = totalCount + 1")
+                    .setSql("total_size = total_size + " + picture.getPicSize())
+                    .setSql("total_count = total_count + 1")
                     .update();
             return picture;
         });
