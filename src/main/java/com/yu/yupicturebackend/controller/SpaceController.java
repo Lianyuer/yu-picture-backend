@@ -15,6 +15,7 @@ import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.model.dto.space.*;
 import com.yu.yupicturebackend.model.entity.Space;
 import com.yu.yupicturebackend.model.entity.User;
+import com.yu.yupicturebackend.model.enums.SpaceLevelEnum;
 import com.yu.yupicturebackend.model.vo.SpaceVO;
 import com.yu.yupicturebackend.service.SpaceService;
 import com.yu.yupicturebackend.service.UserService;
@@ -31,8 +32,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -374,5 +378,22 @@ public class SpaceController {
         return ResultUtils.success(spaceVOPage);
     }
 
+    /**
+     * 获取空间级别列表，便于前端展示
+     *
+     * @return
+     */
+    @GetMapping("/list/level")
+    @ApiOperation("获取空间级别对象列表接口")
+    public BaseResponse<List<SpaceLevel>> listSpaceLevel() {
+        List<SpaceLevel> spaceLevelList = Arrays.stream(SpaceLevelEnum.values())
+                .map(spaceLevelEnum -> new SpaceLevel(
+                        spaceLevelEnum.getValue(),
+                        spaceLevelEnum.getText(),
+                        spaceLevelEnum.getMaxCount(),
+                        spaceLevelEnum.getMaxSize()
+                )).collect(Collectors.toList());
+        return ResultUtils.success(spaceLevelList);
+    }
 
 }
