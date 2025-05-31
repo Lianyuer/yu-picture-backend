@@ -470,8 +470,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             // 更新空间的使用额度
             spaceService.lambdaUpdate()
                     .eq(Space::getId, oldPicture.getSpaceId())
-                    .setSql("totalSize = totalSize - " + oldPicture.getPicSize())
-                    .setSql("totalCount = totalCount - 1")
+                    .setSql("total_size = total_size - " + oldPicture.getPicSize())
+                    .setSql("total_count = total_count - 1")
                     .update();
             return true;
         });
