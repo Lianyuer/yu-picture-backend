@@ -288,6 +288,8 @@ public class PictureController {
             if (!loginUser.getId().equals(space.getUserId())) {
                 throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "没有空间权限");
             }
+            // 私有空间默认查询所有审核状态的图片
+            pictureQueryDTO.setReviewStatus(null);
         }
         // 查询数据库
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
