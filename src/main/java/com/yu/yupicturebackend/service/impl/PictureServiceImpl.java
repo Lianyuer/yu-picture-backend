@@ -106,6 +106,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         String reviewMessage = pictureQueryDTO.getReviewMessage();
         Long reviewerId = pictureQueryDTO.getReviewerId();
         Date reviewTime = pictureQueryDTO.getReviewTime();
+        Date startEditTime = pictureQueryDTO.getStartEditTime();
+        Date endEditTime = pictureQueryDTO.getEndEditTime();
 
         QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(ObjUtil.isNotNull(id), "id", id);
@@ -144,6 +146,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewStatus), "review_status", reviewStatus);
         queryWrapper.like(StrUtil.isNotBlank(reviewMessage), "review_message", reviewMessage);
         queryWrapper.eq(ObjUtil.isNotEmpty(reviewerId), "reviewer_id", reviewerId);
+        queryWrapper.ge(ObjUtil.isNotEmpty(startEditTime),"edit_time", startEditTime);
+        queryWrapper.lt(ObjUtil.isNotEmpty(endEditTime),"edit_time", endEditTime);
 
         queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;
