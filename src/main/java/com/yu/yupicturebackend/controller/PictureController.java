@@ -10,6 +10,8 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.yu.yupicturebackend.annotation.AuthCheck;
+import com.yu.yupicturebackend.api.imagesearch.ImageSearchApiFacade;
+import com.yu.yupicturebackend.api.imagesearch.model.ImageSearchResult;
 import com.yu.yupicturebackend.common.BaseResponse;
 import com.yu.yupicturebackend.common.DeleteRequest;
 import com.yu.yupicturebackend.common.ResultUtils;
@@ -467,6 +469,23 @@ public class PictureController {
         User loginUser = userService.getLoginUser(request);
         pictureService.pictureReview(pictureReviewDTO, loginUser);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 以图搜图
+     *
+     * @return
+     */
+    @PostMapping("/search/picture")
+    @ApiOperation("以图搜图接口")
+    public BaseResponse<List<ImageSearchResult>> searchPictureByPicture(@RequestBody SearchPictureByPictureDTO searchPictureByPictureDTO) {
+        ThrowUtils.throwIf(searchPictureByPictureDTO == null, ErrorCode.PARAMS_ERROR);
+        Long pictureId = searchPictureByPictureDTO.getPictureId();
+        ThrowUtils.throwIf(pictureId == null || pictureId <= 0, ErrorCode.PARAMS_ERROR);
+        Picture oldPicture = pictureService.getById(pictureId);
+        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        List<ImageSearchResult> resultList = ImageSearchApiFacade.searchImage(oldPicture.getThumbnailUrl());
+        return ResultUtils.success(resultList);
     }
 
 }
