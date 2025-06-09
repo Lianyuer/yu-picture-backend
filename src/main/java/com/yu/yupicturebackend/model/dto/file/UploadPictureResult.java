@@ -49,4 +49,9 @@ public class UploadPictureResult implements Serializable {
      */
     private String thumbnailUrl;
 
+    /**
+     * 图片主色调
+     */
+    private String picColor;
+
 }

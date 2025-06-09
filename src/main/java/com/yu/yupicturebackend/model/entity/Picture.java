@@ -133,6 +133,11 @@ public class Picture implements Serializable {
      */
     private String thumbnailUrl;
 
+    /**
+     * 图片主色调
+     */
+    private String picColor;
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -166,7 +171,8 @@ public class Picture implements Serializable {
                 && (this.getReviewMessage() == null ? other.getReviewMessage() == null : this.getReviewMessage().equals(other.getReviewMessage()))
                 && (this.getReviewerId() == null ? other.getReviewerId() == null : this.getReviewerId().equals(other.getReviewerId()))
                 && (this.getReviewTime() == null ? other.getReviewTime() == null : this.getReviewTime().equals(other.getReviewTime()))
-                && (this.getThumbnailUrl() == null ? other.getThumbnailUrl() == null : this.getThumbnailUrl().equals(other.getThumbnailUrl()));
+                && (this.getThumbnailUrl() == null ? other.getThumbnailUrl() == null : this.getThumbnailUrl().equals(other.getThumbnailUrl()))
+                && (this.getPicColor() == null ? other.getPicColor() == null : this.getPicColor().equals(other.getPicColor()));
     }
 
     @Override
@@ -195,6 +201,7 @@ public class Picture implements Serializable {
         result = prime * result + ((getReviewerId() == null) ? 0 : getReviewerId().hashCode());
         result = prime * result + ((getReviewTime() == null) ? 0 : getReviewTime().hashCode());
         result = prime * result + ((getThumbnailUrl() == null) ? 0 : getThumbnailUrl().hashCode());
+        result = prime * result + ((getThumbnailUrl() == null) ? 0 : getPicColor().hashCode());
         return result;
     }
 
@@ -226,6 +233,7 @@ public class Picture implements Serializable {
         sb.append(", reviewerId=").append(reviewerId);
         sb.append(", reviewTime=").append(reviewTime);
         sb.append(", thumbnailUrl=").append(thumbnailUrl);
+        sb.append(", picColor=").append(picColor);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
