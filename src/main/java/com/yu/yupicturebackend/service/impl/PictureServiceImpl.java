@@ -585,6 +585,74 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
                 .map(PictureVO::objToVo)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * 批量图片编辑
+     *
+     * @param pictureEditByBatchDTO
+     * @param loginUser
+     */
+    @Override
+    public void PictureEditByBatch(PictureEditByBatchDTO pictureEditByBatchDTO, User loginUser) {
+        // 1. 获取和校验参数
+        List<Long> pictureIdList = pictureEditByBatchDTO.getPictureIdList();
+        Long spaceId = pictureEditByBatchDTO.getSpaceId();
+        String category = pictureEditByBatchDTO.getCategory();
+        List<String> tags = pictureEditByBatchDTO.getTags();
+        if (CollUtil.isEmpty(pictureIdList) || spaceId == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 2. 校验空间权限
+        Space space = spaceService.getById(spaceId);
+        if (!space.getUserId().equals(loginUser.getId())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无该空间权限");
+        }
+        // 3. 查询指定图片（只查询需要的字段）
+        List<Picture> pictureList = this.lambdaQuery()
+                .select(Picture::getId, Picture::getSpaceId)
+                .eq(Picture::getSpaceId, spaceId)
+                .in(Picture::getId, pictureIdList)
+                .list();
+        if (pictureList.isEmpty()) {
+            return;
+        }
+        // 4. 设置需要填充的字段（分类、标签）
+        pictureList.forEach(picture -> {
+            if (StrUtil.isNotBlank(category)) {
+                picture.setCategory(category);
+            }
+            if (CollUtil.isNotEmpty(tags)) {
+                picture.setTags(JSONUtil.toJsonStr(tags));
+            }
+        });
+        // 批量重命名
+        String nameRule = pictureEditByBatchDTO.getNameRule();
+        fillPictureWithNameRule(pictureList, nameRule);
+        // 5. 操作数据库进行批量更新
+        boolean result = this.updateBatchById(pictureList);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+    }
+
+    /**
+     * nameRule 格式：图片 {序号}
+     *
+     * @param pictureList
+     * @param nameRule
+     */
+    private void fillPictureWithNameRule(List<Picture> pictureList, String nameRule) {
+        if (CollUtil.isEmpty(pictureList) || StrUtil.isBlank(nameRule)) {
+            return;
+        }
+        long count = 1;
+        try {
+            for (Picture picture : pictureList) {
+                String pictureName = nameRule.replaceAll("\\{序号}", String.valueOf(count++));
+                picture.setName(pictureName);
+            }
+        } catch (Exception e) {
+            log.error("批量重命名失败", e);
+        }
+    }
 }
 
 

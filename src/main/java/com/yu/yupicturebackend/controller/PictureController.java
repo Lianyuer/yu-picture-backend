@@ -1,14 +1,9 @@
 package com.yu.yupicturebackend.controller;
 
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
-import cn.hutool.log.Log;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.yu.yupicturebackend.annotation.AuthCheck;
 import com.yu.yupicturebackend.api.imagesearch.ImageSearchApiFacade;
 import com.yu.yupicturebackend.api.imagesearch.model.ImageSearchResult;
@@ -20,13 +15,10 @@ import com.yu.yupicturebackend.exception.BusinessException;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.model.dto.picture.*;
-import com.yu.yupicturebackend.model.dto.space.SpaceLevel;
 import com.yu.yupicturebackend.model.entity.Picture;
 import com.yu.yupicturebackend.model.entity.Space;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.enums.PictureReviewEnum;
-import com.yu.yupicturebackend.model.enums.SpaceLevelEnum;
-import com.yu.yupicturebackend.model.enums.UserRoleEnum;
 import com.yu.yupicturebackend.model.vo.PictureTagCategoryVO;
 import com.yu.yupicturebackend.model.vo.PictureVO;
 import com.yu.yupicturebackend.service.PictureService;
@@ -46,10 +38,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -504,5 +494,21 @@ public class PictureController {
         String picColor = searchPictureByColorDTO.getPicColor();
         List<PictureVO> result = pictureService.searchPictureByColor(spaceId, picColor, loginUser);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 批量编辑图片
+     *
+     * @param pictureEditByBatchDTO
+     * @param request
+     * @return
+     */
+    @PostMapping("/edit/batch")
+    @ApiOperation("批量编辑图片接口")
+    public BaseResponse<Boolean> editPictureByBatch(@RequestBody PictureEditByBatchDTO pictureEditByBatchDTO, HttpServletRequest request) {
+        ThrowUtils.throwIf(pictureEditByBatchDTO == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        pictureService.PictureEditByBatch(pictureEditByBatchDTO, loginUser);
+        return ResultUtils.success(true);
     }
 }

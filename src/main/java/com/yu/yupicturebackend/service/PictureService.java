@@ -2,16 +2,12 @@ package com.yu.yupicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yu.yupicturebackend.common.DeleteRequest;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.yu.yupicturebackend.model.dto.picture.*;
 import com.yu.yupicturebackend.model.entity.Picture;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.PictureVO;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -120,4 +116,13 @@ public interface PictureService extends IService<Picture> {
      * @return
      */
     List<PictureVO> searchPictureByColor(Long spaceId, String color, User loginUser);
+
+    /**
+     * 批量图片编辑
+     *
+     * @param pictureEditByBatchDTO
+     * @param loginUser
+     */
+    void PictureEditByBatch(PictureEditByBatchDTO pictureEditByBatchDTO, User loginUser);
+
 }
