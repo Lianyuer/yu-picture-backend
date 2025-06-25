@@ -44,7 +44,18 @@ public abstract class PictureUploadTemplate {
         validatePicture(inputSource);
         // 2、图片上传地址
         String uuid = RandomUtil.randomString(16);
-        String originalFilename = getOriginalFilename(inputSource);
+        String originalFilename = ""; // 源文件名称
+        // 如果传入的输入源是String类型的链接，如果有?截取?前面的内容
+        if (inputSource instanceof String) {
+            String url;
+            url = inputSource.toString();
+            int questionMarkIndex = url.indexOf('?');
+            if (questionMarkIndex != -1) {
+                originalFilename = url.substring(0, questionMarkIndex);
+            }
+        } else {
+            originalFilename = getOriginalFilename(inputSource);
+        }
         // 文件格式：日期_uuid.文件后缀
         String uploadFileName = String.format(("%s_%s.%s"), DateUtil.formatDate(new Date()),
                 uuid, FileUtil.getSuffix(originalFilename));
