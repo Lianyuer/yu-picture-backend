@@ -43,7 +43,7 @@ public class AliYunAiApi {
                 // 必须开启异步处理
                 .header("X-DashScope-Async", "enable")
                 .header("Content-Type", "application/json")
-                .form(JSONUtil.toJsonStr(createOutPaintingTaskRequest));
+                .body(JSONUtil.toJsonStr(createOutPaintingTaskRequest));
         // 处理响应
         try (HttpResponse httpResponse = httpRequest.execute()) {
             if (!httpResponse.isOk()) {
