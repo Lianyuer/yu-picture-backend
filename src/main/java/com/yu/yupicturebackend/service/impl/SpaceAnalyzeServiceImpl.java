@@ -45,7 +45,7 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
     private void checkSpaceAnalyzeAuth(SpaceAnalyzeRequest spaceAnalyzeRequest, User loginUser) {
         // 校验权限
         if (spaceAnalyzeRequest.isQueryAll() || spaceAnalyzeRequest.isQueryPublic()) {
-            ThrowUtils.throwIf(userService.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR, "无权访问");
+            ThrowUtils.throwIf(!userService.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR, "无权访问");
         } else {
             // 私有空间权限校验
             Long spaceId = spaceAnalyzeRequest.getSpaceId();
