@@ -1,6 +1,8 @@
 package com.yu.yupicturebackend.service.impl;
 
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yu.yupicturebackend.exception.BusinessException;
@@ -9,11 +11,13 @@ import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.mapper.SpaceMapper;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceAnalyzeRequest;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceCategoryAnalyzeRequest;
+import com.yu.yupicturebackend.model.dto.space.analyze.SpaceTagAnalyzeRequest;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceUsageAnalyzeRequest;
 import com.yu.yupicturebackend.model.entity.Picture;
 import com.yu.yupicturebackend.model.entity.Space;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceCategoryAnalyzeResponse;
+import com.yu.yupicturebackend.model.vo.space.analyze.SpaceTagAnalyzeResponse;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceUsageAnalyzeResponse;
 import com.yu.yupicturebackend.service.PictureService;
 import com.yu.yupicturebackend.service.SpaceAnalyzeService;
@@ -23,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -157,6 +162,7 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
         // 根据分析范围补充查询条件
         fillAnalyzeQueryWrapper(spaceCategoryAnalyzeRequest, queryWrapper);
 
+        // 使用 MyBatis-Plus 分组查询
         queryWrapper.select("category",
                         "count(*) as count",
                         "sum(pic_size) as totalSize")
@@ -170,6 +176,41 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
                     long totalSize = ((Number) result.get("totalSize")).longValue();
                     return new SpaceCategoryAnalyzeResponse(category, count, totalSize);
                 }).collect(Collectors.toList());
+    }
+
+    /**
+     * 空间图片标签分析
+     *
+     * @param spaceTagAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public List<SpaceTagAnalyzeResponse> getSpaceTagAnalyze(SpaceTagAnalyzeRequest spaceTagAnalyzeRequest, User loginUser) {
+        ThrowUtils.throwIf(spaceTagAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
+        // 校验权限
+        checkSpaceAnalyzeAuth(spaceTagAnalyzeRequest, loginUser);
+        // 构造查询条件
+        QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
+        fillAnalyzeQueryWrapper(spaceTagAnalyzeRequest, queryWrapper);
+
+        // 查询所有符合条件的标签
+        queryWrapper.select("tags");
+        List<String> tagsJsonList = pictureService.getBaseMapper().selectObjs(queryWrapper)
+                .stream()
+                .filter(ObjUtil::isNotNull)
+                .map(Object::toString)
+                .collect(Collectors.toList());
+
+        // 合并所有标签并统计次数
+        Map<String, Long> tagCountMap = tagsJsonList.stream()
+                .flatMap(tagsJson -> JSONUtil.toList(tagsJson, String.class).stream())
+                .collect(Collectors.groupingBy(tag -> tag, Collectors.counting()));
+        // 转换为响应对象，按使用次数降序排序
+        return tagCountMap.entrySet().stream()
+                .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
+                .map(entry -> new SpaceTagAnalyzeResponse(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
 
 }

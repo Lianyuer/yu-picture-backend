@@ -5,9 +5,11 @@ import com.yu.yupicturebackend.common.ResultUtils;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceCategoryAnalyzeRequest;
+import com.yu.yupicturebackend.model.dto.space.analyze.SpaceTagAnalyzeRequest;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceUsageAnalyzeRequest;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceCategoryAnalyzeResponse;
+import com.yu.yupicturebackend.model.vo.space.analyze.SpaceTagAnalyzeResponse;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceUsageAnalyzeResponse;
 import com.yu.yupicturebackend.service.SpaceAnalyzeService;
 import com.yu.yupicturebackend.service.UserService;
@@ -66,6 +68,23 @@ public class SpaceAnalyzeController {
         ThrowUtils.throwIf(spaceCategoryAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
         List<SpaceCategoryAnalyzeResponse> result = spaceAnalyzeService.getSpaceCategoryAnalyze(spaceCategoryAnalyzeRequest, loginUser);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 空间图片标签分析接口
+     *
+     * @param spaceTagAnalyzeRequest
+     * @param request
+     * @return
+     */
+    @GetMapping("/tag")
+    @ApiOperation("获取空间图片标签分析数据接口")
+    public BaseResponse<List<SpaceTagAnalyzeResponse>> getSpaceTagAnalyze(SpaceTagAnalyzeRequest spaceTagAnalyzeRequest,
+                                                                          HttpServletRequest request) {
+        ThrowUtils.throwIf(spaceTagAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        List<SpaceTagAnalyzeResponse> result = spaceAnalyzeService.getSpaceTagAnalyze(spaceTagAnalyzeRequest, loginUser);
         return ResultUtils.success(result);
     }
 
