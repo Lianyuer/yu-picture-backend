@@ -9,14 +9,12 @@ import com.yu.yupicturebackend.exception.BusinessException;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.mapper.SpaceMapper;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceAnalyzeRequest;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceCategoryAnalyzeRequest;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceTagAnalyzeRequest;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceUsageAnalyzeRequest;
+import com.yu.yupicturebackend.model.dto.space.analyze.*;
 import com.yu.yupicturebackend.model.entity.Picture;
 import com.yu.yupicturebackend.model.entity.Space;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceCategoryAnalyzeResponse;
+import com.yu.yupicturebackend.model.vo.space.analyze.SpaceSizeAnalyzeResponse;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceTagAnalyzeResponse;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceUsageAnalyzeResponse;
 import com.yu.yupicturebackend.service.PictureService;
@@ -26,6 +24,7 @@ import com.yu.yupicturebackend.service.UserService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -210,6 +209,41 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
         return tagCountMap.entrySet().stream()
                 .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
                 .map(entry -> new SpaceTagAnalyzeResponse(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 空间图片大小分析
+     *
+     * @param spaceSizeAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public List<SpaceSizeAnalyzeResponse> getSpaceSizeAnalyze(SpaceSizeAnalyzeRequest spaceSizeAnalyzeRequest, User loginUser) {
+        ThrowUtils.throwIf(spaceSizeAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
+        //校验权限
+        checkSpaceAnalyzeAuth(spaceSizeAnalyzeRequest, loginUser);
+        // 构造查询条件
+        QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
+        // 根据分析范围补充查询条件
+        fillAnalyzeQueryWrapper(spaceSizeAnalyzeRequest, queryWrapper);
+        // 查询所有符合条件的大小
+        queryWrapper.select("pic_size");
+        List<Long> picSizes = pictureService.getBaseMapper().selectObjs(queryWrapper)
+                .stream()
+                .map(size -> ((Number) size).longValue())
+                .collect(Collectors.toList());
+
+        // 定义分段范围，使用有序map
+        Map<String, Long> sizeRange = new LinkedHashMap<>();
+        sizeRange.put("<100KB", picSizes.stream().filter(size -> size < 100 * 1024).count());
+        sizeRange.put("100KB-500KB", picSizes.stream().filter(size -> size >= 100 * 1024 && size < 500 * 1024).count());
+        sizeRange.put("500KB-1MB", picSizes.stream().filter(size -> size >= 500 * 1024 && size < 1024 * 1024).count());
+        sizeRange.put(">1MB", picSizes.stream().filter(size -> size >= 1024 * 1024).count());
+        // 转换为响应对象
+        return sizeRange.entrySet().stream()
+                .map(entry -> new SpaceSizeAnalyzeResponse(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
 

@@ -5,10 +5,12 @@ import com.yu.yupicturebackend.common.ResultUtils;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceCategoryAnalyzeRequest;
+import com.yu.yupicturebackend.model.dto.space.analyze.SpaceSizeAnalyzeRequest;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceTagAnalyzeRequest;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceUsageAnalyzeRequest;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceCategoryAnalyzeResponse;
+import com.yu.yupicturebackend.model.vo.space.analyze.SpaceSizeAnalyzeResponse;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceTagAnalyzeResponse;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceUsageAnalyzeResponse;
 import com.yu.yupicturebackend.service.SpaceAnalyzeService;
@@ -85,6 +87,23 @@ public class SpaceAnalyzeController {
         ThrowUtils.throwIf(spaceTagAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
         List<SpaceTagAnalyzeResponse> result = spaceAnalyzeService.getSpaceTagAnalyze(spaceTagAnalyzeRequest, loginUser);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 空间图片大小分析接口
+     *
+     * @param spaceSizeAnalyzeRequest
+     * @param request
+     * @return
+     */
+    @GetMapping("/size")
+    @ApiOperation("获取空间图片大小分析数据接口")
+    public BaseResponse<List<SpaceSizeAnalyzeResponse>> getSpaceSizeAnalyze(SpaceSizeAnalyzeRequest spaceSizeAnalyzeRequest,
+                                                                            HttpServletRequest request) {
+        ThrowUtils.throwIf(spaceSizeAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        List<SpaceSizeAnalyzeResponse> result = spaceAnalyzeService.getSpaceSizeAnalyze(spaceSizeAnalyzeRequest, loginUser);
         return ResultUtils.success(result);
     }
 
