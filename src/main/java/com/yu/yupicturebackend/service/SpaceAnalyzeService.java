@@ -1,10 +1,14 @@
 package com.yu.yupicturebackend.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yu.yupicturebackend.model.dto.space.analyze.SpaceCategoryAnalyzeRequest;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceUsageAnalyzeRequest;
 import com.yu.yupicturebackend.model.entity.Space;
 import com.yu.yupicturebackend.model.entity.User;
+import com.yu.yupicturebackend.model.vo.space.analyze.SpaceCategoryAnalyzeResponse;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceUsageAnalyzeResponse;
+
+import java.util.List;
 
 /**
  * @author liany
@@ -19,4 +23,13 @@ public interface SpaceAnalyzeService extends IService<Space> {
      * @return
      */
     SpaceUsageAnalyzeResponse getSpaceUsageAnalyze(SpaceUsageAnalyzeRequest spaceUsageAnalyzeRequest, User loginUser);
+
+    /**
+     * 空间图片分类分析
+     *
+     * @param spaceCategoryAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
+    List<SpaceCategoryAnalyzeResponse> getSpaceCategoryAnalyze(SpaceCategoryAnalyzeRequest spaceCategoryAnalyzeRequest, User loginUser);
 }

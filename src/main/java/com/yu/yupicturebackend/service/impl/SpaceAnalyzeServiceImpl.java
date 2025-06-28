@@ -8,10 +8,12 @@ import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.mapper.SpaceMapper;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceAnalyzeRequest;
+import com.yu.yupicturebackend.model.dto.space.analyze.SpaceCategoryAnalyzeRequest;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceUsageAnalyzeRequest;
 import com.yu.yupicturebackend.model.entity.Picture;
 import com.yu.yupicturebackend.model.entity.Space;
 import com.yu.yupicturebackend.model.entity.User;
+import com.yu.yupicturebackend.model.vo.space.analyze.SpaceCategoryAnalyzeResponse;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceUsageAnalyzeResponse;
 import com.yu.yupicturebackend.service.PictureService;
 import com.yu.yupicturebackend.service.SpaceAnalyzeService;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author liany
@@ -133,6 +136,40 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
             spaceUsageAnalyzeResponse.setCountUsageRatio(countUsageRatio);
             return spaceUsageAnalyzeResponse;
         }
+    }
+
+    /**
+     * 空间图片分类分析
+     *
+     * @param spaceCategoryAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public List<SpaceCategoryAnalyzeResponse> getSpaceCategoryAnalyze(SpaceCategoryAnalyzeRequest spaceCategoryAnalyzeRequest, User loginUser) {
+        ThrowUtils.throwIf(spaceCategoryAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
+
+        // 检查权限
+        checkSpaceAnalyzeAuth(spaceCategoryAnalyzeRequest, loginUser);
+
+        // 构造查询条件
+        QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
+        // 根据分析范围补充查询条件
+        fillAnalyzeQueryWrapper(spaceCategoryAnalyzeRequest, queryWrapper);
+
+        queryWrapper.select("category",
+                        "count(*) as count",
+                        "sum(pic_size) as totalSize")
+                .groupBy("category");
+
+        return pictureService.getBaseMapper().selectMaps(queryWrapper)
+                .stream()
+                .map(result -> {
+                    String category = result.get("category") != null ? result.get("category").toString() : "未分类";
+                    long count = ((Number) result.get("count")).longValue();
+                    long totalSize = ((Number) result.get("totalSize")).longValue();
+                    return new SpaceCategoryAnalyzeResponse(category, count, totalSize);
+                }).collect(Collectors.toList());
     }
 
 }

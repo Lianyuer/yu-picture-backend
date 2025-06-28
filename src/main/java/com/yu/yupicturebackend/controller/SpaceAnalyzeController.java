@@ -4,8 +4,10 @@ import com.yu.yupicturebackend.common.BaseResponse;
 import com.yu.yupicturebackend.common.ResultUtils;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
+import com.yu.yupicturebackend.model.dto.space.analyze.SpaceCategoryAnalyzeRequest;
 import com.yu.yupicturebackend.model.dto.space.analyze.SpaceUsageAnalyzeRequest;
 import com.yu.yupicturebackend.model.entity.User;
+import com.yu.yupicturebackend.model.vo.space.analyze.SpaceCategoryAnalyzeResponse;
 import com.yu.yupicturebackend.model.vo.space.analyze.SpaceUsageAnalyzeResponse;
 import com.yu.yupicturebackend.service.SpaceAnalyzeService;
 import com.yu.yupicturebackend.service.UserService;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 获取空间分析数据
@@ -48,4 +51,22 @@ public class SpaceAnalyzeController {
         SpaceUsageAnalyzeResponse result = spaceAnalyzeService.getSpaceUsageAnalyze(spaceUsageAnalyzeRequest, loginUser);
         return ResultUtils.success(result);
     }
+
+    /**
+     * 空间图片分类分析接口
+     *
+     * @param spaceCategoryAnalyzeRequest
+     * @param request
+     * @return
+     */
+    @GetMapping("/category")
+    @ApiOperation("获取空间图片分类分析数据接口")
+    public BaseResponse<List<SpaceCategoryAnalyzeResponse>> getSpaceCategoryAnalyze(SpaceCategoryAnalyzeRequest spaceCategoryAnalyzeRequest,
+                                                                                    HttpServletRequest request) {
+        ThrowUtils.throwIf(spaceCategoryAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        List<SpaceCategoryAnalyzeResponse> result = spaceAnalyzeService.getSpaceCategoryAnalyze(spaceCategoryAnalyzeRequest, loginUser);
+        return ResultUtils.success(result);
+    }
+
 }
