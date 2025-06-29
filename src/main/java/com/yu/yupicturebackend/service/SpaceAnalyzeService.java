@@ -1,16 +1,10 @@
 package com.yu.yupicturebackend.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceCategoryAnalyzeRequest;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceSizeAnalyzeRequest;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceTagAnalyzeRequest;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceUsageAnalyzeRequest;
+import com.yu.yupicturebackend.model.dto.space.analyze.*;
 import com.yu.yupicturebackend.model.entity.Space;
 import com.yu.yupicturebackend.model.entity.User;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceCategoryAnalyzeResponse;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceSizeAnalyzeResponse;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceTagAnalyzeResponse;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceUsageAnalyzeResponse;
+import com.yu.yupicturebackend.model.vo.space.analyze.*;
 
 import java.util.List;
 
@@ -46,5 +40,21 @@ public interface SpaceAnalyzeService extends IService<Space> {
      */
     List<SpaceTagAnalyzeResponse> getSpaceTagAnalyze(SpaceTagAnalyzeRequest spaceTagAnalyzeRequest, User loginUser);
 
+    /**
+     * 空间图片大小分析
+     *
+     * @param spaceSizeAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
     List<SpaceSizeAnalyzeResponse> getSpaceSizeAnalyze(SpaceSizeAnalyzeRequest spaceSizeAnalyzeRequest, User loginUser);
+
+    /**
+     * 用户上传行为分析
+     *
+     * @param spaceUserAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
+    List<SpaceUserAnalyzeResponse> getSpaceUserAnalyze(SpaceUserAnalyzeRequest spaceUserAnalyzeRequest, User loginUser);
 }

@@ -13,10 +13,7 @@ import com.yu.yupicturebackend.model.dto.space.analyze.*;
 import com.yu.yupicturebackend.model.entity.Picture;
 import com.yu.yupicturebackend.model.entity.Space;
 import com.yu.yupicturebackend.model.entity.User;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceCategoryAnalyzeResponse;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceSizeAnalyzeResponse;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceTagAnalyzeResponse;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceUsageAnalyzeResponse;
+import com.yu.yupicturebackend.model.vo.space.analyze.*;
 import com.yu.yupicturebackend.service.PictureService;
 import com.yu.yupicturebackend.service.SpaceAnalyzeService;
 import com.yu.yupicturebackend.service.SpaceService;
@@ -244,6 +241,53 @@ public class SpaceAnalyzeServiceImpl extends ServiceImpl<SpaceMapper, Space>
         // 转换为响应对象
         return sizeRange.entrySet().stream()
                 .map(entry -> new SpaceSizeAnalyzeResponse(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 用户上传行为分析
+     *
+     * @param spaceUserAnalyzeRequest
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public List<SpaceUserAnalyzeResponse> getSpaceUserAnalyze(SpaceUserAnalyzeRequest spaceUserAnalyzeRequest, User loginUser) {
+        ThrowUtils.throwIf(spaceUserAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
+        // 校验权限
+        checkSpaceAnalyzeAuth(spaceUserAnalyzeRequest, loginUser);
+        // 构造查询条件
+        QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
+        Long userId = spaceUserAnalyzeRequest.getUserId();
+        queryWrapper.eq(ObjUtil.isNotNull(userId), "user_id", userId);
+        fillAnalyzeQueryWrapper(spaceUserAnalyzeRequest, queryWrapper);
+
+        // 分析维度：每日、每周、每月
+        String timeDimension = spaceUserAnalyzeRequest.getTimeDimension();
+        switch (timeDimension) {
+            case "day":
+                queryWrapper.select("DATE_FORMAT(create_time,'%Y-%m-%d') as period", "count(*) as count");
+                break;
+            case "week":
+                queryWrapper.select("YEARWEEK(create_time) as period", "count(*) as count");
+                break;
+            case "month":
+                queryWrapper.select("DATE_FORMAT(create_time,'%Y-%m') as period", "count(*) as count");
+                break;
+            default:
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的时间维度");
+        }
+        // 分组和排序
+        queryWrapper.groupBy("period").orderByAsc("period");
+
+        // 查询结果或并转换
+        return pictureService.getBaseMapper().selectMaps(queryWrapper)
+                .stream()
+                .map(result -> {
+                    String period = result.get("period").toString();
+                    long count = ((Number) result.get("count")).longValue();
+                    return new SpaceUserAnalyzeResponse(period, count);
+                })
                 .collect(Collectors.toList());
     }
 

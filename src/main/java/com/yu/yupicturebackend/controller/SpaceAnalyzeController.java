@@ -4,15 +4,9 @@ import com.yu.yupicturebackend.common.BaseResponse;
 import com.yu.yupicturebackend.common.ResultUtils;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceCategoryAnalyzeRequest;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceSizeAnalyzeRequest;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceTagAnalyzeRequest;
-import com.yu.yupicturebackend.model.dto.space.analyze.SpaceUsageAnalyzeRequest;
+import com.yu.yupicturebackend.model.dto.space.analyze.*;
 import com.yu.yupicturebackend.model.entity.User;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceCategoryAnalyzeResponse;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceSizeAnalyzeResponse;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceTagAnalyzeResponse;
-import com.yu.yupicturebackend.model.vo.space.analyze.SpaceUsageAnalyzeResponse;
+import com.yu.yupicturebackend.model.vo.space.analyze.*;
 import com.yu.yupicturebackend.service.SpaceAnalyzeService;
 import com.yu.yupicturebackend.service.UserService;
 import io.swagger.annotations.Api;
@@ -30,7 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/space/analyze")
-@Api(tags = "获取空间分析数据相关接口")
+@Api(tags = "空间分析相关接口")
 public class SpaceAnalyzeController {
 
     @Resource
@@ -47,7 +41,7 @@ public class SpaceAnalyzeController {
      * @return
      */
     @GetMapping("/usage")
-    @ApiOperation("获取空间使用分析数据接口")
+    @ApiOperation("空间使用分析接口")
     public BaseResponse<SpaceUsageAnalyzeResponse> getSpaceUsageAnalyze(SpaceUsageAnalyzeRequest spaceUsageAnalyzeRequest,
                                                                         HttpServletRequest request) {
         ThrowUtils.throwIf(spaceUsageAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
@@ -64,7 +58,7 @@ public class SpaceAnalyzeController {
      * @return
      */
     @GetMapping("/category")
-    @ApiOperation("获取空间图片分类分析数据接口")
+    @ApiOperation("空间图片分类分析接口")
     public BaseResponse<List<SpaceCategoryAnalyzeResponse>> getSpaceCategoryAnalyze(SpaceCategoryAnalyzeRequest spaceCategoryAnalyzeRequest,
                                                                                     HttpServletRequest request) {
         ThrowUtils.throwIf(spaceCategoryAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
@@ -81,7 +75,7 @@ public class SpaceAnalyzeController {
      * @return
      */
     @GetMapping("/tag")
-    @ApiOperation("获取空间图片标签分析数据接口")
+    @ApiOperation("空间图片标签分析接口")
     public BaseResponse<List<SpaceTagAnalyzeResponse>> getSpaceTagAnalyze(SpaceTagAnalyzeRequest spaceTagAnalyzeRequest,
                                                                           HttpServletRequest request) {
         ThrowUtils.throwIf(spaceTagAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
@@ -98,12 +92,29 @@ public class SpaceAnalyzeController {
      * @return
      */
     @GetMapping("/size")
-    @ApiOperation("获取空间图片大小分析数据接口")
+    @ApiOperation("空间图片大小分析接口")
     public BaseResponse<List<SpaceSizeAnalyzeResponse>> getSpaceSizeAnalyze(SpaceSizeAnalyzeRequest spaceSizeAnalyzeRequest,
                                                                             HttpServletRequest request) {
         ThrowUtils.throwIf(spaceSizeAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
         List<SpaceSizeAnalyzeResponse> result = spaceAnalyzeService.getSpaceSizeAnalyze(spaceSizeAnalyzeRequest, loginUser);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 用户上传行为分析接口
+     *
+     * @param spaceUserAnalyzeRequest
+     * @param request
+     * @return
+     */
+    @GetMapping("/user")
+    @ApiOperation("用户上传行为分析接口")
+    public BaseResponse<List<SpaceUserAnalyzeResponse>> getSpaceUserAnalyze(SpaceUserAnalyzeRequest spaceUserAnalyzeRequest,
+                                                                            HttpServletRequest request) {
+        ThrowUtils.throwIf(spaceUserAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        List<SpaceUserAnalyzeResponse> result = spaceAnalyzeService.getSpaceUserAnalyze(spaceUserAnalyzeRequest, loginUser);
         return ResultUtils.success(result);
     }
 
