@@ -5,6 +5,7 @@ import com.yu.yupicturebackend.common.ResultUtils;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.model.dto.space.analyze.*;
+import com.yu.yupicturebackend.model.entity.Space;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.vo.space.analyze.*;
 import com.yu.yupicturebackend.service.SpaceAnalyzeService;
@@ -115,6 +116,23 @@ public class SpaceAnalyzeController {
         ThrowUtils.throwIf(spaceUserAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
         List<SpaceUserAnalyzeResponse> result = spaceAnalyzeService.getSpaceUserAnalyze(spaceUserAnalyzeRequest, loginUser);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 空间使用排行分析接口
+     *
+     * @param spaceRankAnalyzeRequest
+     * @param request
+     * @return
+     */
+    @GetMapping("/rank")
+    @ApiOperation("空间使用排行分析接口")
+    public BaseResponse<List<Space>> getSpaceRankAnalyze(SpaceRankAnalyzeRequest spaceRankAnalyzeRequest,
+                                                         HttpServletRequest request) {
+        ThrowUtils.throwIf(spaceRankAnalyzeRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        List<Space> result = spaceAnalyzeService.getSpaceRankAnalyze(spaceRankAnalyzeRequest, loginUser);
         return ResultUtils.success(result);
     }
 
