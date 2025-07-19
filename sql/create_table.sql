@@ -105,3 +105,11 @@ create table if not exists space
     index idx_spaceName (space_name),  -- 提升基于空间名称的查询效率
     index idx_spaceLevel (space_level) -- 提升按空间级别查询的效率
 ) comment '空间' collate = utf8mb4_unicode_ci;
+
+##################################################################################
+-- 添加新列, space_type 空间类型
+alter table space
+    add space_type int default 0 not null comment '空间类型 0-私有空间, 1-团队空间';
+-- 创建索引
+create index idx_spaceType
+    on space (space_type);

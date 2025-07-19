@@ -35,4 +35,9 @@ public class SpaceQueryDTO extends PageRequest implements Serializable {
      */
     private Integer spaceLevel;
 
+    /**
+     * 空间类型：0-私有空间 1-团队空间
+     */
+    private Integer spaceType;
+
 }
