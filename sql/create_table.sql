@@ -113,3 +113,27 @@ alter table space
 -- 创建索引
 create index idx_spaceType
     on space (space_type);
+
+#################################################################################
+# 创建空间用户关系表
+create table if not exists space_user
+(
+    id          bigint auto_increment comment '主键'
+        primary key,
+    space_id    bigint                                 not null comment '空间 id',
+    user_id     bigint                                 not null comment '用户 id',
+    space_role  varchar(128) default 'viewer'          null comment '空间角色：viewer/editor/admin',
+    create_time datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    constraint uk_spaceId_userId
+        unique (space_id, user_id) comment '唯一索引，用户在一个空间中只能有一个角色'
+)
+    comment '空间用户关联表' collate = utf8mb4_unicode_ci;
+
+create index idx_spaceId
+    on space_user (space_id)
+    comment '空间 id 索引，提升按空间查询的性能';
+
+create index idx_userId
+    on space_user (user_id)
+    comment '用户 id 索引，提升按用户查询的性能';
