@@ -1,0 +1,49 @@
+{
+  "permissions": [
+    {
+      "key": "spaceUser:manage",
+      "name": "成员管理",
+      "description": "管理系统的成员信息"
+    },
+    {
+      "key": "picture:view",
+      "name": "查看图片",
+      "description": "查看系统中的图片"
+    },
+    {
+      "key": "picture:upload",
+      "name": "上传图片",
+      "description": "上传新的图片到系统"
+    },
+    {
+      "key": "picture:edit",
+      "name": "修改图片",
+      "description": "修改系统中的图片信息"
+    },
+    {
+      "key": "picture:delete",
+      "name": "删除图片",
+      "description": "从系统中删除图片"
+    }
+  ],
+  "roles": [
+    {
+      "key": "viewer",
+      "name": "查看者",
+      "permissions": ["picture:view"],
+      "description": "只能查看图片的基本角色"
+    },
+    {
+      "key": "editor",
+      "name": "编辑者",
+      "permissions": ["picture:view", "picture:upload", "picture:edit"],
+      "description": "可以查看、上传和修改图片的中级角色"
+    },
+    {
+      "key": "admin",
+      "name": "管理员",
+      "permissions": ["spaceUser:manage", "picture:view", "picture:upload", "picture:edit", "picture:delete"],
+      "description": "拥有所有权限的高级角色"
+    }
+  ]
+}
