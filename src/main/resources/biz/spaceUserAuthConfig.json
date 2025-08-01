@@ -30,19 +30,32 @@
     {
       "key": "viewer",
       "name": "查看者",
-      "permissions": ["picture:view"],
+      "permissions": [
+        "picture:view"
+      ],
       "description": "只能查看图片的基本角色"
     },
     {
       "key": "editor",
       "name": "编辑者",
-      "permissions": ["picture:view", "picture:upload", "picture:edit"],
+      "permissions": [
+        "picture:view",
+        "picture:upload",
+        "picture:edit",
+        "picture:delete"
+      ],
       "description": "可以查看、上传和修改图片的中级角色"
     },
     {
       "key": "admin",
       "name": "管理员",
-      "permissions": ["spaceUser:manage", "picture:view", "picture:upload", "picture:edit", "picture:delete"],
+      "permissions": [
+        "spaceUser:manage",
+        "picture:view",
+        "picture:upload",
+        "picture:edit",
+        "picture:delete"
+      ],
       "description": "拥有所有权限的高级角色"
     }
   ]
