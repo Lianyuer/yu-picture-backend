@@ -9,6 +9,7 @@ import com.yu.yupicturebackend.common.DeleteRequest;
 import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
+import com.yu.yupicturebackend.manager.auth.StpKit;
 import com.yu.yupicturebackend.model.dto.user.*;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.enums.UserRoleEnum;
@@ -176,6 +177,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         LoginUserVO loginUserVO = getLoginUserVO(user);
         // 5、保存用户登录态
         request.getSession().setAttribute(UserConstant.LOGIN_USER_STATE, loginUserVO);
+        // 6、保存用户登录状态到 sa-token,便于空间鉴权时使用，注意保证用户信息与 SpringSession 中的信息过期时间一致
+        StpKit.SPACE.login(loginUserVO.getId());
+        StpKit.SPACE.getSession().set(UserConstant.LOGIN_USER_STATE, loginUserVO);
         return loginUserVO;
     }
 
