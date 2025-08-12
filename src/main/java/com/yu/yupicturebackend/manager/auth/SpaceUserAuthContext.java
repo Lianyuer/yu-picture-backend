@@ -3,11 +3,13 @@ package com.yu.yupicturebackend.manager.auth;
 import com.yu.yupicturebackend.model.entity.Picture;
 import com.yu.yupicturebackend.model.entity.Space;
 import com.yu.yupicturebackend.model.entity.SpaceUser;
+import lombok.Data;
 
 /**
  * 空间权限上下文对象
  * 表示用户在特定空间内的授权上下文，包括关联的图片、空间和用户信息
  */
+@Data
 public class SpaceUserAuthContext {
 
     /**
