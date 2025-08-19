@@ -8,7 +8,7 @@ import cn.dev33.satoken.stp.StpUtil;
  */
 public class StpKit {
 
-    private static final String SPACE_TYPE = "space";
+    public static final String SPACE_TYPE = "space";
 
     /**
      * 默认原生会话对象
