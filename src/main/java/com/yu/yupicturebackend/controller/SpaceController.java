@@ -12,6 +12,7 @@ import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.BusinessException;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
+import com.yu.yupicturebackend.manager.auth.SpaceUserAuthManager;
 import com.yu.yupicturebackend.model.dto.space.*;
 import com.yu.yupicturebackend.model.entity.Space;
 import com.yu.yupicturebackend.model.entity.User;
@@ -22,7 +23,6 @@ import com.yu.yupicturebackend.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -52,6 +52,9 @@ public class SpaceController {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private SpaceUserAuthManager spaceUserAuthManager;
 
     /**
      * 本地缓存 Caffeine
@@ -196,12 +199,16 @@ public class SpaceController {
      */
     @GetMapping("/get/vo")
     @ApiOperation("根据 id 获取空间封装信息接口")
-    public BaseResponse<SpaceVO> getSpaceVOById(long id) {
+    public BaseResponse<SpaceVO> getSpaceVOById(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 查询数据库
         Space space = spaceService.getById(id);
+        SpaceVO spaceVO = spaceService.getSpaceVO(space);
+        User loginUser = userService.getLoginUser(request);
         ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR);
-        return ResultUtils.success(spaceService.getSpaceVO(space));
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, null, loginUser);
+        spaceVO.setPermissionList(permissionList);
+        return ResultUtils.success(spaceVO);
     }
 
     /**

@@ -17,6 +17,7 @@ import com.yu.yupicturebackend.constant.UserConstant;
 import com.yu.yupicturebackend.exception.BusinessException;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
+import com.yu.yupicturebackend.manager.auth.SpaceUserAuthManager;
 import com.yu.yupicturebackend.manager.auth.StpKit;
 import com.yu.yupicturebackend.manager.auth.annotation.SaSpaceCheckPermission;
 import com.yu.yupicturebackend.manager.auth.model.SpaceUserPermissionConstant;
@@ -61,6 +62,9 @@ public class PictureController {
 
     @Resource
     private PictureService pictureService;
+
+    @Resource
+    private SpaceUserAuthManager spaceUserAuthManager;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -236,6 +240,7 @@ public class PictureController {
         Picture picture = pictureService.getById(id);
         ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
         // 空间权限校验
+        Space space = null;
         Long spaceId = picture.getSpaceId();
         if (spaceId != null) {
 //            User loginUser = userService.getLoginUser(request);
@@ -243,8 +248,14 @@ public class PictureController {
             // 针对未登录也可以调用的接口，需要改为编程式权限校验，避免受注解式权限校验的影响
             boolean hasPermission = StpKit.SPACE.hasPermission(SpaceUserPermissionConstant.PICTURE_VIEW);
             ThrowUtils.throwIf(!hasPermission, ErrorCode.NO_AUTH_ERROR);
+            space = spaceService.getById(spaceId);
+            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
         }
-        return ResultUtils.success(pictureService.getPictureVO(picture));
+        PictureVO pictureVO = pictureService.getPictureVO(picture);
+        User loginUser = userService.getLoginUser(request);
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, picture, loginUser);
+        pictureVO.setPermissionList(permissionList);
+        return ResultUtils.success(pictureVO);
     }
 
     /**

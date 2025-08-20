@@ -6,6 +6,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 空间视图
@@ -79,6 +80,11 @@ public class SpaceVO implements Serializable {
      * 创建用户信息
      */
     private UserVO user;
+
+    /**
+     * 当前用户拥有的权限列表
+     */
+    private List<String> permissionList;
 
     /**
      * 封装类转对象

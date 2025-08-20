@@ -131,6 +131,11 @@ public class PictureVO implements Serializable {
     private String picColor;
 
     /**
+     * 当前用户拥有的权限列表
+     */
+    private List<String> permissionList;
+
+    /**
      * 封装类转对象
      */
     public static Picture voToObj(PictureVO pictureVO) {
