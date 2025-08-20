@@ -176,10 +176,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 4、数据脱敏
         LoginUserVO loginUserVO = getLoginUserVO(user);
         // 5、保存用户登录态
-        request.getSession().setAttribute(UserConstant.LOGIN_USER_STATE, loginUserVO);
+        request.getSession().setAttribute(UserConstant.LOGIN_USER_STATE, user);
         // 6、保存用户登录状态到 sa-token,便于空间鉴权时使用，注意保证用户信息与 SpringSession 中的信息过期时间一致
-        StpKit.SPACE.login(loginUserVO.getId());
-        StpKit.SPACE.getSession().set(UserConstant.LOGIN_USER_STATE, loginUserVO);
+        StpKit.SPACE.login(user.getId());
+        StpKit.SPACE.getSession().set(UserConstant.LOGIN_USER_STATE, user);
         return loginUserVO;
     }
 
@@ -193,7 +193,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public User getLoginUser(HttpServletRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         // 判断是否已经登录
-        LoginUserVO currentUser = (LoginUserVO) request.getSession().getAttribute(UserConstant.LOGIN_USER_STATE);
+        User currentUser = (User) request.getSession().getAttribute(UserConstant.LOGIN_USER_STATE);
         ThrowUtils.throwIf(currentUser == null || currentUser.getId() == null, ErrorCode.NOT_LOGIN_ERROR);
 
         // 从数据库中查询（追求性能的话，可以直接返回上述结果）
@@ -210,7 +210,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     @Override
     public boolean userLogout(HttpServletRequest request) {
-        LoginUserVO loginUser = (LoginUserVO) request.getSession().getAttribute(UserConstant.LOGIN_USER_STATE);
+        User loginUser = (User) request.getSession().getAttribute(UserConstant.LOGIN_USER_STATE);
         ThrowUtils.throwIf(loginUser == null, ErrorCode.OPERATION_ERROR, "未登录");
         request.getSession().removeAttribute(UserConstant.LOGIN_USER_STATE);
         return true;
