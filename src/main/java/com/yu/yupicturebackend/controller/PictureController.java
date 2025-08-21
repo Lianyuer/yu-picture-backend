@@ -39,9 +39,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.util.Arrays;
@@ -241,6 +244,8 @@ public class PictureController {
         ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
         // 空间权限校验
         Space space = null;
+        PictureVO pictureVO = null;
+        User loginUser = null;
         Long spaceId = picture.getSpaceId();
         if (spaceId != null) {
 //            User loginUser = userService.getLoginUser(request);
@@ -250,9 +255,12 @@ public class PictureController {
             ThrowUtils.throwIf(!hasPermission, ErrorCode.NO_AUTH_ERROR);
             space = spaceService.getById(spaceId);
             ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
+            loginUser = userService.getLoginUser(request);
+        } else {
+            HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            loginUser = (User) httpServletRequest.getSession().getAttribute(UserConstant.LOGIN_USER_STATE);
         }
-        PictureVO pictureVO = pictureService.getPictureVO(picture);
-        User loginUser = userService.getLoginUser(request);
+        pictureVO = pictureService.getPictureVO(picture);
         List<String> permissionList = spaceUserAuthManager.getPermissionList(space, picture, loginUser);
         pictureVO.setPermissionList(permissionList);
         return ResultUtils.success(pictureVO);
