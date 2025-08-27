@@ -1,6 +1,7 @@
 package com.yu.yupicturebackend.controller;
 
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -15,10 +16,13 @@ import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.manager.auth.SpaceUserAuthManager;
 import com.yu.yupicturebackend.model.dto.space.*;
 import com.yu.yupicturebackend.model.entity.Space;
+import com.yu.yupicturebackend.model.entity.SpaceUser;
 import com.yu.yupicturebackend.model.entity.User;
 import com.yu.yupicturebackend.model.enums.SpaceLevelEnum;
+import com.yu.yupicturebackend.model.enums.SpaceTypeEnum;
 import com.yu.yupicturebackend.model.vo.SpaceVO;
 import com.yu.yupicturebackend.service.SpaceService;
+import com.yu.yupicturebackend.service.SpaceUserService;
 import com.yu.yupicturebackend.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -49,6 +53,9 @@ public class SpaceController {
 
     @Resource
     private SpaceService spaceService;
+
+    @Resource
+    private SpaceUserService spaceUserService;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -102,6 +109,12 @@ public class SpaceController {
         // 仅本人或者管理员可进行删除
         if (!oldSpace.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        // 如果要删除的是团队空间，团队成员关系也需要删除
+        if (oldSpace.getSpaceType().equals(SpaceTypeEnum.TEAM.getValue())) {
+            QueryWrapper<SpaceUser> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("space_id", spaceId);
+            spaceUserService.remove(queryWrapper);
         }
         // 操作数据库
         boolean result = spaceService.removeById(spaceId);
