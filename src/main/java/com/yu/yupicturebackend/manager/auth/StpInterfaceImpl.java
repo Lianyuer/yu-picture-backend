@@ -114,7 +114,7 @@ public class StpInterfaceImpl implements StpInterface {
             ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR, "未找到图片信息");
             spaceId = picture.getSpaceId();
             // 公共图库, 仅本人和管理员可操作
-            if (spaceId == null) {
+            if (spaceId == 0) {
                 if (picture.getUserId().equals(userId) || userService.isAdmin(loginUser)) {
                     return ADMIN_PERMISSIONS;
                 } else {

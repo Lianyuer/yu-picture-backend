@@ -133,7 +133,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         queryWrapper.eq(ObjUtil.isNotEmpty(picScale), "pic_scale", picScale);
         queryWrapper.eq(ObjUtil.isNotEmpty(picFormat), "pic_format", picFormat);
         queryWrapper.eq(ObjUtil.isNotEmpty(userId), "user_id", userId);
-        queryWrapper.isNull(nullSpaceId, "space_id");
+//        queryWrapper.isNull(nullSpaceId, "space_id");
+        queryWrapper.eq(nullSpaceId, "space_id", 0L);
         queryWrapper.eq(ObjUtil.isNotEmpty(spaceId), "space_id", spaceId);
         // 从多字段中查询
         if (StrUtil.isNotBlank(searchText)) {
@@ -340,6 +341,11 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             // 如果是更新，需要补充 id 和编辑时间
             picture.setId(pictureId);
             picture.setEditTime(new Date());
+        } else {
+            // 公共图库新建图片，补充空间 id，默认为 0
+            if (spaceId == null) {
+                picture.setSpaceId(0L);
+            }
         }
         if (pictureUploadDTO != null && StrUtil.isNotBlank(pictureUploadDTO.getPicName())) {
             picName = pictureUploadDTO.getPicName();
