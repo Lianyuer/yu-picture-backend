@@ -65,7 +65,7 @@ spring:
             actual-data-nodes: yu_picture.picture  # 动态分表
             table-strategy:
               standard:
-                sharding-column: spaceId
+                sharding-column: space_id
                 sharding-algorithm-name: picture_sharding_algorithm  # 使用自定义分片算法
         sharding-algorithms:
           picture_sharding_algorithm:
