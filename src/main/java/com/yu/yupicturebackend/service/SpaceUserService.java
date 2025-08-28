@@ -1,10 +1,11 @@
 package com.yu.yupicturebackend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.yu.yupicturebackend.model.dto.spaceuser.BatchSpaceUserAddRequest;
 import com.yu.yupicturebackend.model.dto.spaceuser.SpaceUserAddRequest;
 import com.yu.yupicturebackend.model.dto.spaceuser.SpaceUserQueryRequest;
 import com.yu.yupicturebackend.model.entity.SpaceUser;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.yu.yupicturebackend.model.vo.SpaceUserVO;
 
 import java.util.List;
@@ -23,6 +24,14 @@ public interface SpaceUserService extends IService<SpaceUser> {
      * @return 关系表中成功新增的记录的 id
      */
     long addSpaceUser(SpaceUserAddRequest spaceUserAddRequest);
+
+    /**
+     * 批量添加成员到空间
+     *
+     * @param batchSpaceUserAddRequest
+     * @return
+     */
+    void batchAddSpaceUser(BatchSpaceUserAddRequest batchSpaceUserAddRequest);
 
     /**
      * 获取空间成员封装类

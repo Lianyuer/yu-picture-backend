@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yu.yupicturebackend.exception.BusinessException;
 import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
+import com.yu.yupicturebackend.mapper.SpaceUserMapper;
+import com.yu.yupicturebackend.model.dto.spaceuser.BatchSpaceUserAddRequest;
 import com.yu.yupicturebackend.model.dto.spaceuser.SpaceUserAddRequest;
 import com.yu.yupicturebackend.model.dto.spaceuser.SpaceUserQueryRequest;
 import com.yu.yupicturebackend.model.entity.Space;
@@ -19,16 +21,12 @@ import com.yu.yupicturebackend.model.vo.SpaceVO;
 import com.yu.yupicturebackend.model.vo.UserVO;
 import com.yu.yupicturebackend.service.SpaceService;
 import com.yu.yupicturebackend.service.SpaceUserService;
-import com.yu.yupicturebackend.mapper.SpaceUserMapper;
 import com.yu.yupicturebackend.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -71,6 +69,58 @@ public class SpaceUserServiceImpl extends ServiceImpl<SpaceUserMapper, SpaceUser
         boolean isSuccess = this.save(spaceUser);
         ThrowUtils.throwIf(!isSuccess, ErrorCode.OPERATION_ERROR);
         return spaceUser.getId();
+    }
+
+    /**
+     * 批量添加成员到空间 (兼容批量删除的情况)
+     *
+     * @param batchSpaceUserAddRequest
+     * @return
+     */
+    @Override
+    public void batchAddSpaceUser(BatchSpaceUserAddRequest batchSpaceUserAddRequest) {
+        ThrowUtils.throwIf(batchSpaceUserAddRequest == null, ErrorCode.PARAMS_ERROR);
+        Long spaceId = batchSpaceUserAddRequest.getSpaceId();
+        List<Long> userIds = batchSpaceUserAddRequest.getUserIds();
+        // 判断要添加的成员数量,如果大于查询当前空间的成员数量,就是新增
+        // 否则就需要先删除所有成员再新增
+        // 删除之前需要先备份原先账号的空间角色
+        // 查询当前空间的成员
+        List<SpaceUser> currSpaceUser = this.lambdaQuery()
+                .eq(SpaceUser::getSpaceId, spaceId)
+                .select(SpaceUser::getUserId, SpaceUser::getSpaceRole).list();
+        Map<Long, String> SpaceUserIdSpaceRoleMap = currSpaceUser.stream()
+                .collect(Collectors.toMap(SpaceUser::getUserId, SpaceUser::getSpaceRole));
+        if (userIds.size() <= currSpaceUser.size()) {
+            QueryWrapper<SpaceUser> spaceUserQueryWrapper = new QueryWrapper<>();
+            spaceUserQueryWrapper.eq("space_id", spaceId);
+            boolean isRemove = this.remove(spaceUserQueryWrapper);
+            ThrowUtils.throwIf(!isRemove, ErrorCode.OPERATION_ERROR);
+        }
+        List<SpaceUser> spaceUserList = userIds.stream()
+                .map(id -> {
+                    SpaceUser spaceUser = new SpaceUser();
+                    spaceUser.setUserId(id);
+                    BeanUtils.copyProperties(batchSpaceUserAddRequest, spaceUser);
+                    validateSpaceUser(spaceUser, true);
+                    Long userId = spaceUser.getUserId();
+                    String spaceRole = SpaceUserIdSpaceRoleMap.get(id);
+                    spaceUser.setSpaceRole(spaceRole);
+                    // 判断要新增的成员是否已存在
+                    boolean isExistedUser = this.lambdaQuery()
+                            .eq(SpaceUser::getUserId, userId)
+                            .eq(SpaceUser::getSpaceId, spaceId)
+                            .exists();
+//                    ThrowUtils.throwIf(isExistedUser, ErrorCode.PARAMS_ERROR, "该成员已存在");
+                    if (!isExistedUser) {
+                        return spaceUser;
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull) // 过滤掉null值
+                .collect(Collectors.toList());
+        boolean isSuccess = this.saveBatch(spaceUserList);
+        ThrowUtils.throwIf(!isSuccess, ErrorCode.OPERATION_ERROR);
     }
 
     /**

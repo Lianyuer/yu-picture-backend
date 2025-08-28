@@ -8,6 +8,7 @@ import com.yu.yupicturebackend.exception.ErrorCode;
 import com.yu.yupicturebackend.exception.ThrowUtils;
 import com.yu.yupicturebackend.manager.auth.annotation.SaSpaceCheckPermission;
 import com.yu.yupicturebackend.manager.auth.model.SpaceUserPermissionConstant;
+import com.yu.yupicturebackend.model.dto.spaceuser.BatchSpaceUserAddRequest;
 import com.yu.yupicturebackend.model.dto.spaceuser.SpaceUserAddRequest;
 import com.yu.yupicturebackend.model.dto.spaceuser.SpaceUserEditRequest;
 import com.yu.yupicturebackend.model.dto.spaceuser.SpaceUserQueryRequest;
@@ -54,6 +55,21 @@ public class SpaceUserController {
         ThrowUtils.throwIf(spaceUserAddRequest == null, ErrorCode.PARAMS_ERROR);
         long id = spaceUserService.addSpaceUser(spaceUserAddRequest);
         return ResultUtils.success(id);
+    }
+
+    /**
+     * 批量添加成员到空间
+     *
+     * @param batchSpaceUserAddRequest
+     * @return
+     */
+    @ApiOperation("批量添加成员到空间")
+    @PostMapping("/batch/add")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.SPACE_USER_MANAGE)
+    public BaseResponse<String> batchAddSpaceUser(@RequestBody BatchSpaceUserAddRequest batchSpaceUserAddRequest) {
+        ThrowUtils.throwIf(batchSpaceUserAddRequest == null, ErrorCode.PARAMS_ERROR);
+        spaceUserService.batchAddSpaceUser(batchSpaceUserAddRequest);
+        return ResultUtils.success("ok");
     }
 
     /**
