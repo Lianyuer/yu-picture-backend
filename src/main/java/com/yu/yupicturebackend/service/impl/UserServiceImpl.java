@@ -17,6 +17,7 @@ import com.yu.yupicturebackend.model.vo.LoginUserVO;
 import com.yu.yupicturebackend.model.vo.UserVO;
 import com.yu.yupicturebackend.service.UserService;
 import com.yu.yupicturebackend.mapper.UserMapper;
+import com.yu.yupicturebackend.utils.RandomNicknameGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -146,6 +147,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String encryptPassword = this.getEncryptPassword(userPassword);
         User user = new User();
         user.setUserAccount(userAccount);
+        // 随机生成注册账号的用户名
+        String userName = RandomNicknameGenerator.generateRandomNickname();
+        user.setUserName(userName);
         user.setUserPassword(encryptPassword);
         boolean isSaved = this.save(user);
         ThrowUtils.throwIf(!isSaved, ErrorCode.SYSTEM_ERROR);
