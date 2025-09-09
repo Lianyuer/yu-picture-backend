@@ -41,6 +41,11 @@
             <artifactId>sa-token-redis-template</artifactId>
             <version>1.44.0</version>
         </dependency>
+        <!-- websocket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
         <!-- 提供 Redis 连接池 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
