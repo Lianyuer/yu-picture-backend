@@ -333,7 +333,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         Picture picture = new Picture();
         BeanUtils.copyProperties(uploadPictureResult, picture);
         picture.setUserId(loginUser.getId());
-        picture.setSpaceId(spaceId);
+//        picture.setSpaceId(spaceId);
         String picName = pictureUploadDTO.getPicName();
         // 操作数据库
         // 如果 pictureId 不为空，表示更新，否则是新增
