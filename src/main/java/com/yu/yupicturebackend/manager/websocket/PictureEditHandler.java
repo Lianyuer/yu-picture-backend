@@ -52,7 +52,7 @@ public class PictureEditHandler extends TextWebSocketHandler {
         pictureSessions.get(pictureId).add(session);
         // 构造响应, 发送加入编辑的消息通知
         PictureEditResponseMessage pictureEditResponseMessage = new PictureEditResponseMessage();
-        pictureEditResponseMessage.setType(PictureEditMessageTypeEnum.ENTER_EDIT.getValue());
+        pictureEditResponseMessage.setType(PictureEditMessageTypeEnum.INFO.getValue());
         String message = String.format("用户 %s 加入编辑", user.getUserName());
         pictureEditResponseMessage.setMessage(message);
         pictureEditResponseMessage.setUserVO(userService.getUserVO(user));
