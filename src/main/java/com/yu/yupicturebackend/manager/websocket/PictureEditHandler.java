@@ -134,7 +134,7 @@ public class PictureEditHandler extends TextWebSocketHandler {
      */
     public void handleEditActionMessage(PictureEditRequestMessage pictureEditRequestMessage, WebSocketSession session, User user, Long pictureId) throws IOException {
         Long editingUserId = pictureEditingUsers.get(pictureId);
-        String type = pictureEditRequestMessage.getType();
+        String type = pictureEditRequestMessage.getEditAction();
         PictureEditActionEnum actionEnum = PictureEditActionEnum.getEnumByValue(type);
         if (actionEnum == null) {
             log.error("操作类型错误");
