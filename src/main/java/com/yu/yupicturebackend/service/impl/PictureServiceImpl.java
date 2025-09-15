@@ -345,6 +345,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             // 公共图库新建图片，补充空间 id，默认为 0
             if (spaceId == null) {
                 picture.setSpaceId(0L);
+            } else { // 私有空间上传图片，补充空间 id
+                picture.setSpaceId(spaceId);
             }
         }
         if (pictureUploadDTO != null && StrUtil.isNotBlank(pictureUploadDTO.getPicName())) {
